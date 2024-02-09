@@ -3,21 +3,25 @@ from kivy.app import App
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.button import Button
 from kivy.uix.label import Label
-from kivy.clock import Clock  # Import Clock module for scheduling
+from kivy.uix.textinput import TextInput
+from kivy.clock import Clock
 import random
 
 class Gamescreen(App):
     def build(self):
         self.layout = self.createtable()
-        Clock.schedule_interval(self.random_letter,1)  # Schedule random_letter function to run every 3 seconds
+        Clock.schedule_interval(self.random_letter,)  # Schedule random_letter function to run every 3 seconds
         return self.layout
 
     def createtable(self):
-        layout = GridLayout(cols=6, rows=6)
+        layout = GridLayout(cols=6, rows=7)
         # Initialize grid with buttons
         for i in range(36):
             label = Label(text='', font_size=20)
             layout.add_widget(label)
+        # Add a row for text input
+        text_input = TextInput(text='Enter text here')
+        layout.add_widget(text_input)
         return layout
 
     def random_letter(self, dt):
