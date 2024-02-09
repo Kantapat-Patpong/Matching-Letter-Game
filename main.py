@@ -9,7 +9,7 @@ import random
 class Gamescreen(App):
     def build(self):
         self.layout = self.createtable()
-        Clock.schedule_interval(self.random_letter, 3)  # Schedule random_letter function to run every 3 seconds
+        Clock.schedule_interval(self.random_letter,1)  # Schedule random_letter function to run every 3 seconds
         return self.layout
 
     def createtable(self):
@@ -23,8 +23,9 @@ class Gamescreen(App):
     def random_letter(self, dt):
         # Function to place a random letter on the grid
         char = random.choice("ABCDEFGHIJKLMNOPQRSTUVWXYZ")  # Randomly choose a letter
-        button = random.choice(self.layout.children)  # Randomly select a button from the grid
-        button.text = char  # Set the text of the button to the random letter
+        label = random.choice(self.layout.children)  # Randomly select a button from the grid
+        label.text = char  # Set the text of the button to the random letter
 
 if __name__ == "__main__":
     Gamescreen().run()
+
