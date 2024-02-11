@@ -1,4 +1,5 @@
 import kivy
+import time
 from kivy.app import App
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.label import Label
@@ -31,9 +32,10 @@ class Gamescreen(App):
     
     def inputbox(self):
         input_box = BoxLayout(size_hint_y=None, height=0.1*Window.height)
-        input = TextInput(text='',multiline=False,on_text_validate=self.check_char)
+        input = TextInput(text='',multiline=False)
+        input.focus=True
+        input.bind(text=self.check_char)
         input_box.add_widget(input)
-        
         return input_box
 
     def random_letter(self, dt):
@@ -42,12 +44,11 @@ class Gamescreen(App):
         label = random.choice(self.labels)  # Randomly select a label from the grid
         label.text = char  # Set the text of the label to the random letter
 
-    def check_char(self, instance) :
-        char_for_check = instance.text.upper()  # Get input text and convert to uppercase for case insensitivity
+    def check_char(self,instance,value) :
+        char_for_check = value.upper()  # Get input text and convert to uppercase for case insensitivity
         for label in self.labels:
             if label.text == char_for_check:
                 label.text = ''  # Clear the label text if it matches the input text
-                break  # Break the loop after clearing one matching letter
         instance.text = ''  # Clear the input box after checking
         Clock.schedule_once(lambda dt: self.focus_input(instance))
 
