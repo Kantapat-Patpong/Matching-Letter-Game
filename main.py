@@ -16,7 +16,8 @@ class GameScreen(App):
         self.layout.add_widget(self.playzone)
         self.input = self.input_box()
         self.layout.add_widget(self.input)
-        Clock.schedule_interval(self.random_letter,1)  # Schedule random_letter function to run every 3 seconds
+        self.correct_input_count = 0
+        Clock.schedule_interval(self.random_letter,3)  # Schedule random_letter function to run every 3 seconds
         return self.layout
 
     def play_table(self):
@@ -47,15 +48,25 @@ class GameScreen(App):
         label.text = char
 
     def check_char(self,instance,value) :
-        char_for_check = value.upper()  # Get input text and convert to uppercase for case insensitivity
+        
+        char_for_check = value.upper()
         for label in self.labels:
             if label.text == char_for_check:
-                label.text = ''  # Clear the label text if it matches the input text
-        instance.text = ''  # Clear the input box after checking
+                label.text = ''
+                print(self.correct_input_count)
+                self.correct_input_count += 1
+                if self.correct_input_count == 10:
+                    self.increase_speed()
+        instance.text = ''
         Clock.schedule_once(lambda dt: self.focus_input(instance))
 
     def focus_input(self, instance):
         instance.focus = True  # Set focus back to the input box
+
+    def increase_speed(self):
+        Clock.unschedule(self.random_letter)
+        Clock.schedule_interval(self.random_letter, 1)
+        print("Speed increased")
 
     def game_over(self):
         self.input.disabled = True
