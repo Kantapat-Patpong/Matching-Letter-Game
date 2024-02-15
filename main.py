@@ -9,17 +9,17 @@ from kivy.core.window import Window
 from kivy.clock import Clock
 import random
 
-class Gamescreen(App):
+class GameScreen(App):
     def build(self):
         self.layout = GridLayout(cols=1, rows=2) 
-        self.playzone = self.playtable()
+        self.playzone = self.play_table()
         self.layout.add_widget(self.playzone)
-        self.input = self.inputbox()
+        self.input = self.input_box()
         self.layout.add_widget(self.input)
         Clock.schedule_interval(self.random_letter,1)  # Schedule random_letter function to run every 3 seconds
         return self.layout
 
-    def playtable(self):
+    def play_table(self):
         playzone = GridLayout(cols=6, rows=6)
         # Initialize grid with labels
         self.labels = []
@@ -30,19 +30,19 @@ class Gamescreen(App):
         
         return playzone
     
-    def inputbox(self):
+    def input_box(self):
         input_box = BoxLayout(size_hint_y=None, height=0.1*Window.height)
-        input = TextInput(text='',multiline=False)
+        input = TextInput(text='',multiline=True)
         input.focus=True
         input.bind(text=self.check_char)
         input_box.add_widget(input)
         return input_box
 
     def random_letter(self, dt):
-        # Function to place a random letter on the grid
-        char = random.choice("ABCDEFGHIJKLMNOPQRSTUVWXYZ")  # Randomly choose a letter
-        label = random.choice(self.labels)  # Randomly select a label from the grid
-        label.text = char  # Set the text of the label to the random letter
+        char = random.choice("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+        empty_labels = [label for label in self.labels if label.text == '']
+        label = random.choice(empty_labels)
+        label.text = char
 
     def check_char(self,instance,value) :
         char_for_check = value.upper()  # Get input text and convert to uppercase for case insensitivity
@@ -56,5 +56,5 @@ class Gamescreen(App):
         instance.focus = True  # Set focus back to the input box
 
 if __name__ == "__main__":
-    Gamescreen().run()
+    GameScreen().run()
 
