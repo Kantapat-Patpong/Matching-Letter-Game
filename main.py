@@ -42,6 +42,8 @@ class GameScreen(App):
         char = random.choice("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
         empty_labels = [label for label in self.labels if label.text == '']
         label = random.choice(empty_labels)
+        if len(empty_labels) == 1:
+            self.game_over()
         label.text = char
 
     def check_char(self,instance,value) :
@@ -54,6 +56,11 @@ class GameScreen(App):
 
     def focus_input(self, instance):
         instance.focus = True  # Set focus back to the input box
+
+    def game_over(self):
+        self.input.disabled = True
+        Clock.unschedule(self.random_letter)
+        print("Game Over!")
 
 if __name__ == "__main__":
     GameScreen().run()
