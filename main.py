@@ -48,13 +48,14 @@ class GameScreen(App):
         label.text = char
 
     def check_char(self,instance,value) :
-        
+        print(f"value: {value}")
+        print(f"instance: {instance.text}")
         char_for_check = value.upper()
         for label in self.labels:
-            if label.text == char_for_check:
+            if label.text == char_for_check and label.text != '':
                 label.text = ''
-                print(self.correct_input_count)
                 self.correct_input_count += 1
+                print(f"correction count: {self.correct_input_count}")
                 if self.correct_input_count == 10:
                     self.increase_speed()
         instance.text = ''
