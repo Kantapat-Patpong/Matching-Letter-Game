@@ -54,7 +54,7 @@ class GameScreen(App):
         char_for_check = value.upper()
         for label in self.labels:
             if label.text == char_for_check and label.text != '':
-                self.change_level(label)
+                self.animation_disappear(label)
         instance.text = ''
         Clock.schedule_once(lambda dt: self.focus_input(instance))
     
@@ -81,8 +81,17 @@ class GameScreen(App):
                 auto_dismiss=True, size_hint=(0.4, 0.4))
         popup.open()
 
-    def animation_disappear() :
-        pass
+    def animation_disappear(self, label) :
+        anim = Animation(font_size=label.font_size*2, opacity=0, duration=0.25)
+
+        def on_complete(animation, label):
+            label.text = '' 
+            self.correct_input_count += 1
+            if self.correct_input_count % 10 == 0:
+                self.increase_speed()
+                
+        anim.bind(on_complete=lambda *args: on_complete(anim, label))
+        anim.start(label)
 
 if __name__ == "__main__":
     GameScreen().run()
