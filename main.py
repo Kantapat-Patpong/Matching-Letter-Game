@@ -12,24 +12,25 @@ import random
 class GameScreen(App):
     def build(self):
         self.layout = GridLayout(cols=1, rows=2) 
-        self.playzone = self.play_table()
-        self.layout.add_widget(self.playzone)
+        self.play_zone = self.play_table()
+        self.layout.add_widget(self.play_zone)
         self.input = self.input_box()
         self.layout.add_widget(self.input)
         self.correct_input_count = 0
-        Clock.schedule_interval(self.random_letter,3)  # Schedule random_letter function to run every 3 seconds
+        self.game_speed = 2
+        Clock.schedule_interval(self.random_letter,self.game_speed)  # Schedule random_letter function to run every 3 seconds
         return self.layout
 
     def play_table(self):
-        playzone = GridLayout(cols=6, rows=6)
+        play_zone = GridLayout(cols=6, rows=6)
         # Initialize grid with labels
         self.labels = []
         for i in range(36):
             label = Label(text='', font_size=50)
             self.labels.append(label)
-            playzone.add_widget(label)
+            play_zone.add_widget(label)
         
-        return playzone
+        return play_zone
     
     def input_box(self):
         input_box = BoxLayout(size_hint_y=None, height=0.1*Window.height)
@@ -56,18 +57,19 @@ class GameScreen(App):
                 label.text = ''
                 self.correct_input_count += 1
                 print(f"correction count: {self.correct_input_count}")
-                if self.correct_input_count == 10:
+                if self.correct_input_count % 10 == 0:
                     self.increase_speed()
         instance.text = ''
         Clock.schedule_once(lambda dt: self.focus_input(instance))
 
     def focus_input(self, instance):
-        instance.focus = True  # Set focus back to the input box
+        instance.focus = True
 
     def increase_speed(self):
         Clock.unschedule(self.random_letter)
-        Clock.schedule_interval(self.random_letter, 1)
-        print("Speed increased")
+        self.game_speed *= 0.7
+        Clock.schedule_interval(self.random_letter, self.game_speed)
+        print("*******Speed increased*******")
 
     def game_over(self):
         self.input.disabled = True
