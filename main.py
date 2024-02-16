@@ -7,6 +7,7 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.textinput import TextInput
 from kivy.core.window import Window
 from kivy.clock import Clock
+from kivy.uix.popup import Popup
 import random
 
 class GameScreen(App):
@@ -17,19 +18,17 @@ class GameScreen(App):
         self.input = self.input_box()
         self.layout.add_widget(self.input)
         self.correct_input_count = 0
-        self.game_speed = 2
-        Clock.schedule_interval(self.random_letter,self.game_speed)  # Schedule random_letter function to run every 3 seconds
+        self.game_speed = -2
+        Clock.schedule_interval(self.random_letter,self.game_speed)
         return self.layout
 
     def play_table(self):
         play_zone = GridLayout(cols=6, rows=6)
-        # Initialize grid with labels
         self.labels = []
         for i in range(36):
             label = Label(text='', font_size=50)
             self.labels.append(label)
             play_zone.add_widget(label)
-        
         return play_zone
     
     def input_box(self):
@@ -74,7 +73,10 @@ class GameScreen(App):
     def game_over(self):
         self.input.disabled = True
         Clock.unschedule(self.random_letter)
-        print("Game Over!")
+        print("*******Game Over!*******")
+        popup = Popup(title='Matching Letter Game', content=Label(text=f'Game Over! \ncorrect input count: {self.correct_input_count}'),
+                auto_dismiss=True, size_hint=(0.4, 0.4))
+        popup.open()
 
 if __name__ == "__main__":
     GameScreen().run()
