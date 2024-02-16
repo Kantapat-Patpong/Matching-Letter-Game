@@ -8,17 +8,18 @@ from kivy.uix.textinput import TextInput
 from kivy.core.window import Window
 from kivy.clock import Clock
 from kivy.uix.popup import Popup
+from kivy.animation import Animation
 import random
 
 class GameScreen(App):
     def build(self):
-        self.layout = GridLayout(cols=1, rows=2) 
+        self.layout = GridLayout(cols=1, rows=3) 
         self.play_zone = self.play_table()
         self.layout.add_widget(self.play_zone)
         self.input = self.input_box()
         self.layout.add_widget(self.input)
         self.correct_input_count = 0
-        self.game_speed = -2
+        self.game_speed = 2
         Clock.schedule_interval(self.random_letter,self.game_speed)
         return self.layout
 
@@ -53,14 +54,16 @@ class GameScreen(App):
         char_for_check = value.upper()
         for label in self.labels:
             if label.text == char_for_check and label.text != '':
-                label.text = ''
-                self.correct_input_count += 1
-                print(f"correction count: {self.correct_input_count}")
-                if self.correct_input_count % 10 == 0:
-                    self.increase_speed()
+                self.change_level(label)
         instance.text = ''
         Clock.schedule_once(lambda dt: self.focus_input(instance))
-
+    
+    def change_level(self, label):
+        label.text = ''
+        self.correct_input_count += 1
+        if self.correct_input_count % 10 == 0:
+            self.increase_speed()
+    
     def focus_input(self, instance):
         instance.focus = True
 
@@ -77,6 +80,9 @@ class GameScreen(App):
         popup = Popup(title='Matching Letter Game', content=Label(text=f'Game Over! \ncorrect input count: {self.correct_input_count}'),
                 auto_dismiss=True, size_hint=(0.4, 0.4))
         popup.open()
+
+    def animation_disappear() :
+        pass
 
 if __name__ == "__main__":
     GameScreen().run()
