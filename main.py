@@ -46,8 +46,7 @@ class GameScreen(App):
         label = random.choice(empty_labels)
         if len(empty_labels) == 1:
             self.game_over()
-        label.text = char
-        self.animation_appear(label)
+        self.animate_appear(label,char)
 
     def check_char(self,instance,value) :
         print(f"value: {value}")
@@ -55,15 +54,16 @@ class GameScreen(App):
         char_for_check = value.upper()
         for label in self.labels:
             if label.text == char_for_check and label.text != '':
-                self.animation_disappear(label)
+                self.animate_disappear(label)
+                if self.correct_input_count % 10 == 0:
+                    self.increase_speed()
+
         instance.text = ''
         Clock.schedule_once(lambda dt: self.focus_input(instance))
     
-    def change_level(self, label):
+    def set_label_to_empty(self, label):
         label.text = ''
         self.correct_input_count += 1
-        if self.correct_input_count % 10 == 0:
-            self.increase_speed()
     
     def focus_input(self, instance):
         instance.focus = True
@@ -82,22 +82,17 @@ class GameScreen(App):
                 auto_dismiss=True, size_hint=(0.4, 0.4))
         popup.open()
 
-    def animation_disappear(self, label) :
-        anim = Animation(font_size=100, opacity=0, duration=0.25)
-        anim += Animation(font_size=50, opacity=0, duration=0.25)
+    def animate_disappear(self, label) :
+        anim = Animation(font_size=label.font_size, opacity=100, duration=0)
+        anim += Animation(font_size=label.font_size*2, opacity=0, duration=0.15)
 
-        def on_complete(animation, label):
-            label.text = '' 
-            self.correct_input_count += 1
-            if self.correct_input_count % 10 == 0:
-                self.increase_speed()
-                
-        anim.bind(on_complete=lambda *args: on_complete(anim, label))
+        anim.bind(on_complete=lambda *args: self.set_label_to_empty(label))
         anim.start(label)
 
-    def animation_appear(self, label) :
-        print(f"label_size: {label.font_size}")
-        anim = Animation(font_size=50, opacity=100, duration=0.25)
+    def animate_appear(self, label ,char) :
+        label.text = char
+        anim = Animation(font_size=100, opacity=0,duration=0) 
+        anim += Animation(font_size=50, opacity=100, duration=0.25)
         anim.start(label)
 
 if __name__ == "__main__":
