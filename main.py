@@ -19,7 +19,7 @@ class GameScreen(App):
         self.input = self.input_box()
         self.layout.add_widget(self.input)
         self.correct_input_count = 0
-        self.game_speed = 2
+        self.game_speed = 0.5
         Clock.schedule_interval(self.random_letter,self.game_speed)
         return self.layout
 
@@ -47,6 +47,7 @@ class GameScreen(App):
         if len(empty_labels) == 1:
             self.game_over()
         label.text = char
+        self.animation_appear(label)
 
     def check_char(self,instance,value) :
         print(f"value: {value}")
@@ -82,7 +83,8 @@ class GameScreen(App):
         popup.open()
 
     def animation_disappear(self, label) :
-        anim = Animation(font_size=label.font_size*2, opacity=0, duration=0.25)
+        anim = Animation(font_size=100, opacity=0, duration=0.25)
+        anim += Animation(font_size=50, opacity=0, duration=0.25)
 
         def on_complete(animation, label):
             label.text = '' 
@@ -91,6 +93,11 @@ class GameScreen(App):
                 self.increase_speed()
                 
         anim.bind(on_complete=lambda *args: on_complete(anim, label))
+        anim.start(label)
+
+    def animation_appear(self, label) :
+        print(f"label_size: {label.font_size}")
+        anim = Animation(font_size=50, opacity=100, duration=0.25)
         anim.start(label)
 
 if __name__ == "__main__":
