@@ -66,7 +66,8 @@ class GameScreen(App):
                 self.correct_sound()
                 self.animate_disappear(label)
                 self.score += (100 * self.score_multiplier)
-                if self.correct_input_count % 10 == 0 and self.correct_input_count != 0:
+                if self.correct_input_count % 10 == 0 and self.correct_input_count != 0 and self.correct_input_count != 0:
+                    self.speed_increase_sound()
                     self.increase_speed()
 
         instance.text = ''
@@ -82,7 +83,7 @@ class GameScreen(App):
     def increase_speed(self):
         Clock.unschedule(self.random_letter)
         self.game_speed *= 0.95
-        self.score_multiplier += 0.5
+        self.score_multiplier += 0.1
         Clock.schedule_interval(self.random_letter, self.game_speed)
         self.level_number += 1
         self.level_text.text = f"Level {self.level_number}"
@@ -112,6 +113,10 @@ class GameScreen(App):
     def correct_sound(self) :
         correct_sound = SoundLoader.load('./sound/correct_sound.mp3')
         correct_sound.play()
+        
+    def speed_increase_sound(self) :
+        speed_sound = SoundLoader.load('./sound/speed_increase.mp3')
+        speed_sound.play()
 
 if __name__ == "__main__":
     GameScreen().run()
