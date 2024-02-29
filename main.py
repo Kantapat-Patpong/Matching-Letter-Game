@@ -9,6 +9,7 @@ from kivy.core.window import Window
 from kivy.clock import Clock
 from kivy.uix.popup import Popup
 from kivy.animation import Animation
+from kivy.core.audio import SoundLoader
 import random
 
 class GameScreen(App):
@@ -19,7 +20,7 @@ class GameScreen(App):
         self.input = self.input_box()
         self.layout.add_widget(self.input)
         self.correct_input_count = 0
-        self.game_speed = 0.5
+        self.game_speed = 2
         Clock.schedule_interval(self.random_letter,self.game_speed)
         return self.layout
 
@@ -54,6 +55,7 @@ class GameScreen(App):
         char_for_check = value.upper()
         for label in self.labels:
             if label.text == char_for_check and label.text != '':
+                self.correct_sound()
                 self.animate_disappear(label)
                 if self.correct_input_count % 10 == 0:
                     self.increase_speed()
@@ -70,7 +72,7 @@ class GameScreen(App):
 
     def increase_speed(self):
         Clock.unschedule(self.random_letter)
-        self.game_speed *= 0.7
+        self.game_speed *= 0.95
         Clock.schedule_interval(self.random_letter, self.game_speed)
         print("*******Speed increased*******")
 
@@ -94,6 +96,10 @@ class GameScreen(App):
         anim = Animation(font_size=100, opacity=0,duration=0) 
         anim += Animation(font_size=50, opacity=100, duration=0.25)
         anim.start(label)
+        
+    def correct_sound(self) :
+        correct_sound = SoundLoader.load('./sound/correct_sound.mp3')
+        correct_sound.play()
 
 if __name__ == "__main__":
     GameScreen().run()
