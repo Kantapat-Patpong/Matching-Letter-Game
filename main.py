@@ -23,12 +23,13 @@ class GameScreen(App):
         self.correct_input_count = 0
         self.score = 0
         self.score_multiplier = 1
-        self.game_speed = 2
+        self.game_speed = 0.5
         self.level_zone = BoxLayout(size=(300, 300))
         self.input.add_widget(self.level_zone)
         self.level_number = 1
         self.level_text = Label(text=f'Level {self.level_number}', font_size=50)
         self.level_zone.add_widget(self.level_text)
+        self.background_music()
         Clock.schedule_interval(self.random_letter,self.game_speed)
         return self.layout
 
@@ -92,6 +93,7 @@ class GameScreen(App):
     def game_over(self):
         self.input.disabled = True
         Clock.unschedule(self.random_letter)
+        self.background_music().stop()
         print("*******Game Over!*******")
         popup = Popup(title='Matching Letter Game', content=Label(text=f'Game Over! \ncorrect input count: {self.correct_input_count} \nyour score: {self.score}'),
                 auto_dismiss=True, size_hint=(0.4, 0.4))
@@ -112,11 +114,18 @@ class GameScreen(App):
         
     def correct_sound(self) :
         correct_sound = SoundLoader.load('./sound/correct_sound.mp3')
+        correct_sound.volume = 0.2
         correct_sound.play()
         
     def speed_increase_sound(self) :
         speed_sound = SoundLoader.load('./sound/speed_increase.mp3')
         speed_sound.play()
+        
+    def background_music(self) :
+        background_sound = SoundLoader.load('./sound/Background.mp3')
+        background_sound.loop = True
+        background_sound.volume = 0.5
+        background_sound.play()
 
 if __name__ == "__main__":
     GameScreen().run()
