@@ -10,6 +10,7 @@ from kivy.clock import Clock
 from kivy.uix.popup import Popup
 from kivy.animation import Animation
 from kivy.core.audio import SoundLoader
+from kivy.uix.floatlayout import FloatLayout
 import random
 
 class GameScreen(App):
@@ -23,6 +24,11 @@ class GameScreen(App):
         self.score = 0
         self.score_multiplier = 1
         self.game_speed = 2
+        self.level_zone = BoxLayout(size=(300, 300))
+        self.input.add_widget(self.level_zone)
+        self.level_number = 1
+        self.level_text = Label(text=f'Level {self.level_number}', font_size=50)
+        self.level_zone.add_widget(self.level_text)
         Clock.schedule_interval(self.random_letter,self.game_speed)
         return self.layout
 
@@ -60,7 +66,7 @@ class GameScreen(App):
                 self.correct_sound()
                 self.animate_disappear(label)
                 self.score += (100 * self.score_multiplier)
-                if self.correct_input_count % 10 == 0:
+                if self.correct_input_count % 10 == 0 and self.correct_input_count != 0:
                     self.increase_speed()
 
         instance.text = ''
@@ -78,6 +84,8 @@ class GameScreen(App):
         self.game_speed *= 0.95
         self.score_multiplier += 0.5
         Clock.schedule_interval(self.random_letter, self.game_speed)
+        self.level_number += 1
+        self.level_text.text = f"Level {self.level_number}"
         print("*******Speed increased*******")
 
     def game_over(self):
