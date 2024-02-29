@@ -20,6 +20,8 @@ class GameScreen(App):
         self.input = self.input_box()
         self.layout.add_widget(self.input)
         self.correct_input_count = 0
+        self.score = 0
+        self.score_multiplier = 1
         self.game_speed = 2
         Clock.schedule_interval(self.random_letter,self.game_speed)
         return self.layout
@@ -57,6 +59,7 @@ class GameScreen(App):
             if label.text == char_for_check and label.text != '':
                 self.correct_sound()
                 self.animate_disappear(label)
+                self.score += (100 * self.score_multiplier)
                 if self.correct_input_count % 10 == 0:
                     self.increase_speed()
 
@@ -73,6 +76,7 @@ class GameScreen(App):
     def increase_speed(self):
         Clock.unschedule(self.random_letter)
         self.game_speed *= 0.95
+        self.score_multiplier += 0.5
         Clock.schedule_interval(self.random_letter, self.game_speed)
         print("*******Speed increased*******")
 
@@ -80,7 +84,7 @@ class GameScreen(App):
         self.input.disabled = True
         Clock.unschedule(self.random_letter)
         print("*******Game Over!*******")
-        popup = Popup(title='Matching Letter Game', content=Label(text=f'Game Over! \ncorrect input count: {self.correct_input_count}'),
+        popup = Popup(title='Matching Letter Game', content=Label(text=f'Game Over! \ncorrect input count: {self.correct_input_count} \nyour score: {self.score}'),
                 auto_dismiss=True, size_hint=(0.4, 0.4))
         popup.open()
 
