@@ -23,14 +23,14 @@ class GameScreen(App):
         self.correct_input_count = 0
         self.score = 0
         self.score_multiplier = 1
-        self.game_speed = 0.2
+        self.game_speed = 2
         self.level_zone = BoxLayout(size=(300, 300))
         self.input.add_widget(self.level_zone)
         self.level_number = 1
         self.level_text = Label(text=f'Level {self.level_number}', font_size=50)
         self.level_zone.add_widget(self.level_text)
-        music_path = './sound/Background.mp3'
-        self.background_music = music(music_path)
+        self.background_music = music('./sound/Background.mp3')
+        self.background_music.volume(0.5)
         self.background_music.play()
         self.correct_sound = music('./sound/correct_sound.mp3')
         self.correct_sound.volume(0.2)
@@ -64,13 +64,12 @@ class GameScreen(App):
         self.animate_appear(label,char)
 
     def check_char(self,instance,value) :
-        print(f"value: {value}")
-        print(f"instance: {instance.text}")
         char_for_check = value.upper()
         for label in self.labels:
             if label.text == char_for_check and label.text != '':
                 self.correct_sound.play()
                 self.animate_disappear(label)
+                self.correct_input_count += 1
                 self.score += (100 * self.score_multiplier)
                 if self.correct_input_count % 10 == 0 and self.correct_input_count != 0:
                     self.speed_increase_sound.play()
@@ -81,7 +80,6 @@ class GameScreen(App):
     
     def set_label_to_empty(self, label):
         label.text = ''
-        self.correct_input_count += 1
     
     def focus_input(self, instance):
         instance.focus = True
