@@ -24,6 +24,7 @@ class GameScreen(App):
         self.score = 0
         self.score_multiplier = 1
         self.game_speed = 2
+        self.current_time = Clock.get_time()
         self.level_zone = BoxLayout(size=(300, 300))
         self.input.add_widget(self.level_zone)
         self.level_number = 1
@@ -64,20 +65,35 @@ class GameScreen(App):
         self.animate_appear(label,char)
 
     def check_char(self,instance,value) :
-        char_for_check = value.upper()
-        for label in self.labels:
-            if label.text == char_for_check and label.text != '':
-                self.correct_sound.play()
-                self.animate_disappear(label)
-                self.correct_input_count += 1
-                self.score += (100 * self.score_multiplier)
-                if self.correct_input_count % 10 == 0 and self.correct_input_count != 0:
-                    self.speed_increase_sound.play()
-                    self.increase_speed()
-
-        instance.text = ''
-        Clock.schedule_once(lambda dt: self.focus_input(instance))
-    
+        if value != '' :
+            dt = Clock.get_time() - self.current_time
+            print("dt =" , dt)
+            self.current_time = Clock.get_time()
+            print("current time = ",self.current_time)
+            if dt < 0.25 :
+                print("disable")
+                self.input.disabled = True
+                Clock.schedule_once(self.enable_input,2)
+            char_for_check = value.upper()
+            for label in self.labels:
+                if label.text == char_for_check and label.text != '':
+                    self.correct_sound.play()
+                    self.animate_disappear(label)
+                    self.correct_input_count += 1
+                    self.score += (100 * self.score_multiplier)
+                    if self.correct_input_count % 10 == 0 and self.correct_input_count != 0:
+                        self.speed_increase_sound.play()
+                        self.increase_speed()
+                        
+            instance.text = ''
+            Clock.schedule_once(lambda dt: self.focus_input(instance))
+        else :
+            pass
+        
+    def enable_input(self,dt) :
+        self.input.disabled = False
+        self.focus_input(self.input)
+        
     def set_label_to_empty(self, label):
         label.text = ''
     
