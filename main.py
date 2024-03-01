@@ -30,12 +30,13 @@ class GameScreen(App):
         self.level_number = 1
         self.level_text = Label(text=f'Level {self.level_number}', font_size=50)
         self.level_zone.add_widget(self.level_text)
-        self.background_music = music('./sound/Background.mp3')
+        self.background_music = Music('./sound/Background.mp3')
         self.background_music.volume(0.5)
         self.background_music.play()
-        self.correct_sound = music('./sound/correct_sound.mp3')
+        self.correct_sound = Music('./sound/correct_sound.mp3')
         self.correct_sound.volume(0.2)
-        self.speed_increase_sound = music('./sound/speed_increase.mp3')
+        self.speed_increase_sound = Music('./sound/speed_increase.mp3')
+        self.health = HealthBar(max_health=5)
         Clock.schedule_interval(self.random_letter,self.game_speed)
         return self.layout
 
@@ -75,25 +76,33 @@ class GameScreen(App):
                 self.input.disabled = True
                 Clock.schedule_once(self.enable_input,2)
             char_for_check = value.upper()
+            char_matched = False
             for label in self.labels:
                 if label.text == char_for_check and label.text != '':
                     self.correct_sound.play()
                     self.animate_disappear(label)
                     self.correct_input_count += 1
                     self.score += (100 * self.score_multiplier)
+                    char_matched = True
                     if self.correct_input_count % 10 == 0 and self.correct_input_count != 0:
                         self.speed_increase_sound.play()
                         self.increase_speed()
                         
             instance.text = ''
             Clock.schedule_once(lambda dt: self.focus_input(instance))
+            
+            if not char_matched:
+                self.health.lose_health()
+                print("Health:", self.health)
+                if self.health.current_health == 0:
+                    self.game_over()
         else :
             pass
-        
+
     def enable_input(self,dt) :
         self.input.disabled = False
         self.focus_input(self.input)
-        
+    
     def set_label_to_empty(self, label):
         label.text = ''
     
@@ -132,7 +141,7 @@ class GameScreen(App):
         anim += Animation(font_size=50, opacity=100, duration=0.25)
         anim.start(label)
 
-class music(SoundLoader) :
+class Music(SoundLoader) :
     def __init__(self,music_path):
         super().__init__()
         self.music = SoundLoader.load(music_path)
@@ -145,6 +154,19 @@ class music(SoundLoader) :
         
     def volume(self ,loud) :
         self.music.volume = loud
+
+class HealthBar:
+    def __init__(self, max_health):
+        self.max_health = max_health
+        self.current_health = max_health
+
+    def __str__(self) -> str:
+        return f"health: {self.current_health}"
+
+    def lose_health(self):
+        if self.current_health != 0:
+            self.current_health -= 1
+
 
 if __name__ == "__main__":
     GameScreen().run()
