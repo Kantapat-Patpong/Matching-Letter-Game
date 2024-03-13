@@ -113,7 +113,13 @@ class GameScreen(App):
                     self.correct_input_count += 1
                     self.score += (100 * self.score_multiplier)
                     char_matched = True
-                    if self.correct_input_count % 10 == 0 and self.correct_input_count != 0:
+                    if self.correct_input_count % 10 == 0 and self.correct_input_count != 0 and self.level_number < 10:
+                        self.speed_increase_sound.play()
+                        self.increase_speed()
+                    elif self.correct_input_count % 25 == 0 and self.correct_input_count != 0 and 10 <= self.level_number < 30:
+                        self.speed_increase_sound.play()
+                        self.increase_speed()
+                    elif self.correct_input_count % 50 == 0 and self.correct_input_count != 0 and  30 <= self.level_number :
                         self.speed_increase_sound.play()
                         self.increase_speed()
                         
