@@ -11,6 +11,7 @@ from kivy.uix.popup import Popup
 from kivy.animation import Animation
 from kivy.core.audio import SoundLoader
 from kivy.uix.floatlayout import FloatLayout
+from kivy.graphics import Color,Rectangle
 import random
 
 class GameScreen(App):
@@ -45,9 +46,22 @@ class GameScreen(App):
         self.labels = []
         for i in range(36):
             label = Label(text='', font_size=50)
+            self.set_label_background(label)
             self.labels.append(label)
             play_zone.add_widget(label)
         return play_zone
+    
+    def set_label_background(self, label):
+        label.bind(size=self.update_label_background, pos=self.update_label_background)
+        label.canvas.before.clear()
+        with label.canvas.before:
+            Color(0, 0.7, 0.7, 1)  # Set background color (here: light blue)
+            self.rect = Rectangle(size=label.size, pos=label.pos)
+
+    def update_label_background(self, instance, value):
+        self.rect.pos = instance.pos
+        print(self.rect.pos)
+        self.rect.size = instance.size
     
     def input_box(self):
         input_box = BoxLayout(size_hint_y=None, height=0.1*Window.height)
