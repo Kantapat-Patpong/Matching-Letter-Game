@@ -12,12 +12,18 @@ from kivy.animation import Animation
 from kivy.core.audio import SoundLoader
 from kivy.uix.floatlayout import FloatLayout
 from kivy.graphics import Color,Rectangle
+from kivy.uix.image import Image
 import random
 
 class GameScreen(App):
     def build(self):
-        self.layout = GridLayout(cols=1, rows=3) 
+        self.layout = GridLayout(cols=1, rows=4) 
         self.play_zone = self.play_table()
+        self.level_zone = BoxLayout(size_hint_y=None, height=50)
+        self.layout.add_widget(self.level_zone)
+        self.level_number = 1
+        self.level_text = Label(text=f'Level {self.level_number}', font_size=50)
+        self.level_zone.add_widget(self.level_text)
         self.layout.add_widget(self.play_zone)
         self.input = self.input_box()
         self.layout.add_widget(self.input)
@@ -26,11 +32,7 @@ class GameScreen(App):
         self.score_multiplier = 1
         self.game_speed = 2
         self.current_time = Clock.get_time()
-        self.level_zone = BoxLayout(size=(300, 300))
-        self.input.add_widget(self.level_zone)
-        self.level_number = 1
-        self.level_text = Label(text=f'Level {self.level_number}', font_size=50)
-        self.level_zone.add_widget(self.level_text)
+        
         self.background_music = Music('./sound/Background.mp3')
         self.background_music.volume(0.5)
         self.background_music.play()
