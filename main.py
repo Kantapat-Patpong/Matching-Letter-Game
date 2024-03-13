@@ -44,27 +44,39 @@ class GameScreen(App):
         return self.layout
 
     def play_table(self):
-        play_zone = GridLayout(cols=6, rows=6)
+        play_zone = GridLayout(cols=7, rows=6)
         self.labels = []
-        for i in range(36):
-            label = Label(text='', font_size=50)
-            self.set_label_background(label)
+        current_color = Color(0.1, 0.1, 0.1, 1)
+        for i in range(42):
+            label = Label(text='', font_size=50) #pls add some background color here
             self.labels.append(label)
+            rect = Rectangle(pos=label.pos, size=label.size)
+            rect_color = Color(current_color.r, current_color.g, current_color.b, 1)
+            label.canvas.before.add(rect_color)  # Set the background color (RGBA values)
+            label.canvas.before.add(rect)
+            label.bind(pos=self.update_rect_pos)  # Bind the label's position update to update the rectangle's position
+            label.bind(size=self.update_rect_size)  # Bind the label's size update to update the rectangle's size
             play_zone.add_widget(label)
+            current_color = self.next_color(current_color)
         return play_zone
     
-    def set_label_background(self, label):
-        label.bind(size=self.update_label_background, pos=self.update_label_background)
-        label.canvas.before.clear()
-        with label.canvas.before:
-            Color(0, 0.7, 0.7, 1)  # Set background color (here: light blue)
-            self.rect = Rectangle(size=label.size, pos=label.pos)
+    def update_rect_pos(self, instance, value):
+        for instruction in instance.canvas.before.children:
+            if isinstance(instruction, Rectangle):
+                instruction.pos = instance.pos  # Update the position of the rectangle when the label's position changes
 
-    def update_label_background(self, instance, value):
-        self.rect.pos = instance.pos
-        print(self.rect.pos)
-        self.rect.size = instance.size
+    def update_rect_size(self, instance, value):
+        for instruction in instance.canvas.before.children:
+            if isinstance(instruction, Rectangle):
+                instruction.size = instance.size  # Update the size of the rectangle when the label's size changes
     
+    def next_color(self, current_color):
+        # Function to switch between two colors
+        if current_color.r == 0.1:  # If current color is the initial color
+            return Color(0.05, 0.05, 0.05, 1)  # Switch to the alternate color
+        else:
+            return Color(0.1, 0.1, 0.1, 1)  # Switch back to the initial color
+        
     def input_box(self):
         input_box = BoxLayout(size_hint_y=None, height=0.1*Window.height)
         input = TextInput(text='',multiline=True)
