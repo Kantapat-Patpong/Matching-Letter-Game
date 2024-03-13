@@ -100,7 +100,7 @@ class GameScreen(App):
             print("dt =" , dt)
             self.current_time = Clock.get_time()
             print("current time = ",self.current_time)
-            if dt < 0.25 :
+            if dt < 0.1 :
                 print("disable")
                 self.input.disabled = True
                 Clock.schedule_once(self.enable_input,2)
