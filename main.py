@@ -18,7 +18,7 @@ class GameScreen(App):
     def build(self):
         self.layout = GridLayout(cols=1, rows=4) 
         self.play_zone = self.play_table()
-        self.level_zone = BoxLayout(size_hint_y=None, height=50)
+        self.level_zone = GridLayout(cols=2, rows=1, size_hint_y=None)
         self.layout.add_widget(self.level_zone)
         self.level_number = 1
         self.level_text = Label(text=f'Level {self.level_number}', font_size=50)
@@ -31,7 +31,6 @@ class GameScreen(App):
         self.score_multiplier = 1
         self.game_speed = 2
         self.current_time = Clock.get_time()
-        
         self.background_music = Music('./sound/Background.mp3')
         self.background_music.volume(0.5)
         self.background_music.play()
@@ -39,6 +38,8 @@ class GameScreen(App):
         self.correct_sound.volume(0.2)
         self.speed_increase_sound = Music('./sound/speed_increase.mp3')
         self.health = HealthBar(max_health=5)
+        self.image = Image(source=self.health.source, size_hint_x=.2)
+        self.input.add_widget(self.image)
         Clock.schedule_interval(self.random_letter,self.game_speed)
         return self.layout
 
@@ -94,7 +95,11 @@ class GameScreen(App):
             Clock.schedule_once(lambda dt: self.focus_input(instance))
             
             if not char_matched:
+                self.input.remove_widget(self.image)
+                print(self.health)
                 self.health.lose_health()
+                self.image = Image(source=self.health.source, size_hint_x=.2)
+                self.input.add_widget(self.image)
                 print("Health:", self.health)
                 if self.health.current_health == 0:
                     self.game_over()
@@ -161,6 +166,7 @@ class HealthBar:
     def __init__(self, max_health):
         self.max_health = max_health
         self.current_health = max_health
+        self.source = './image/health_bar_5.png'
 
     def __str__(self) -> str:
         return f"health: {self.current_health}"
@@ -168,6 +174,17 @@ class HealthBar:
     def lose_health(self):
         if self.current_health != 0:
             self.current_health -= 1
+            self.change_source()
+
+    def change_source(self):
+        if self.current_health == 4:
+            self.source = './image/health_bar_4.png'
+        elif self.current_health == 3:
+            self.source = './image/health_bar_3.png'
+        elif self.current_health == 2:
+            self.source = './image/health_bar_2.png'
+        elif self.current_health == 1:
+            self.source = './image/health_bar_1.png'
 
 
 if __name__ == "__main__":
