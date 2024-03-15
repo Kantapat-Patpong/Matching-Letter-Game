@@ -174,7 +174,7 @@ class GameScreen(App):
     def animate_disappear(self, label) :
         anim = Animation(font_size=label.font_size, opacity=100, duration=0)
         anim += Animation(font_size=label.font_size*2, opacity=0, duration=0.15)
-
+        anim += Animation(font_size=0, opacity=100, duration=0.15)
         anim.bind(on_complete=lambda *args: self.set_label_to_empty(label))
         anim.start(label)
 
