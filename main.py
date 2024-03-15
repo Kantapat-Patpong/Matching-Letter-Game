@@ -13,22 +13,25 @@ from kivy.core.audio import SoundLoader
 from kivy.uix.floatlayout import FloatLayout
 from kivy.graphics import Color,Rectangle
 from kivy.uix.image import Image
+from kivy.metrics import dp
 import random
 
 class GameScreen(App):
     def build(self):
         self.layout = GridLayout(cols=1, rows=4) 
         self.play_zone = self.play_table()
-        self.level_zone = GridLayout(cols=2, rows=1, size_hint_y=None)
-        self.layout.add_widget(self.level_zone)
+        self.header = GridLayout(cols=2, rows=1, size_hint_y=None)
+        self.layout.add_widget(self.header)
         self.level_number = 1
         self.level_text = Label(text=f'Level {self.level_number}', font_size=50)
-        self.level_zone.add_widget(self.level_text)
+        self.header.add_widget(self.level_text)
         self.layout.add_widget(self.play_zone)
         self.input = self.input_box()
         self.layout.add_widget(self.input)
         self.correct_input_count = 0
         self.score = 0
+        self.score_text = Label(text=f'Score : {self.score}', font_size=50)
+        self.header.add_widget(self.score_text)
         self.score_multiplier = 1
         self.game_speed = 2
         self.current_time = Clock.get_time()
@@ -112,6 +115,7 @@ class GameScreen(App):
                     self.animate_disappear(label)
                     self.correct_input_count += 1
                     self.score += (100 * self.score_multiplier)
+                    self.score_text.text = f"Score : {self.score:.0f}"
                     char_matched = True
                     if self.correct_input_count % 10 == 0 and self.correct_input_count != 0 and self.level_number < 10:
                         self.speed_increase_sound.play()
