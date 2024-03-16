@@ -57,6 +57,8 @@ class GameScreen(Screen):
         self.correct_sound.volume(0.2)
         self.incorrect_sound = Music('./sound/oof_soundeffect.mp3')
         self.incorrect_sound.volume(1)
+        self.gameover_sound = Music('./sound/gameover.mp3')
+        self.gameover_sound.volume(1)
         self.speed_increase_sound = Music('./sound/speed_increase.mp3')
         self.health = HealthBar(max_health=5)
         self.image = Image(source=self.health.source)
@@ -154,6 +156,7 @@ class GameScreen(Screen):
         Clock.unschedule(self.random_letter)
         background_music = self.background_music
         background_music.stop()
+        self.gameover_sound.play()
         EventLoop.window.unbind(on_key_down=self.on_key_down)
         print("*******Game Over!*******")
         popup = Popup(title='Matching Letter Game', content=Label(text=f'Game Over! \ncorrect input count: {self.correct_input_count} \nyour score: {self.score}'),
