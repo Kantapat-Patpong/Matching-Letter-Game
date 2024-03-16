@@ -154,6 +154,7 @@ class GameScreen(Screen):
         Clock.unschedule(self.random_letter)
         background_music = self.background_music
         background_music.stop()
+        EventLoop.window.unbind(on_key_down=self.on_key_down)
         print("*******Game Over!*******")
         popup = Popup(title='Matching Letter Game', content=Label(text=f'Game Over! \ncorrect input count: {self.correct_input_count} \nyour score: {self.score}'),
                       auto_dismiss=True, size_hint=(0.4, 0.4))
