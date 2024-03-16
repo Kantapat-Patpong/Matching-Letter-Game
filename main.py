@@ -36,27 +36,55 @@ class HomeScreen(Screen):
         self.manager.current = 'game'
 
     def set_sound(self, instance):
-        setting_sound_screen = SettingSoundScreen(name='setting_sound')
-        self.manager.add_widget(setting_sound_screen)
         self.manager.current = 'setting_sound'
 
 class SettingSoundScreen(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.background_music_volume = 0.5
+        self.effect_volume = 0.5
+        self.background_music = Music('./sound/Background.mp3')
+        self.background_music.volume(self.background_music_volume)
+        self.correct_sound = Music('./sound/correct_sound.mp3')
+        self.correct_sound.volume(self.effect_volume)
+        self.incorrect_sound = Music('./sound/oof_soundeffect.mp3')
+        self.incorrect_sound.volume(self.effect_volume)
+        self.speed_increase_sound = Music('./sound/speed_increase.mp3')
+        self.speed_increase_sound.volume(self.effect_volume)
         self.layout = BoxLayout(orientation='vertical')
+        self.background_layout = BoxLayout(orientation='horizontal')
+        self.effect_layout = BoxLayout(orientation='horizontal')
+        self.background = TextInput()
+        self.effect = TextInput()
+        self.background_increase_button = Button(text="+")
+        self.background_increase_button.bind(on_press=self.back_to_home)
+        self.background_decrease_button = Button(text="-")
+        self.background_decrease_button.bind(on_press=self.back_to_home)
+        self.effect_increase_button = Button(text="+")
+        self.effect_increase_button.bind(on_press=self.back_to_home)
+        self.effect_decrease_button = Button(text="-")
+        self.effect_decrease_button.bind(on_press=self.back_to_home)
+        self.mute_button = Button(text="Mute All")
+        self.mute_button.bind(on_press=self.back_to_home)
         self.back_button = Button(text="Back")
         self.back_button.bind(on_press=self.back_to_home)
-        self.volume_button = Button(text="Volume")
-        self.volume_button.bind(on_press=self.back_to_home)
-        self.mute_button = Button(text="Mute")
-        self.mute_button.bind(on_press=self.back_to_home)
-        self.layout.add_widget(self.back_button)
-        self.layout.add_widget(self.volume_button)
+        self.background_layout.add_widget(self.background_decrease_button)
+        self.effect_layout.add_widget(self.effect_decrease_button)
+        self.background_layout.add_widget(self.background)
+        self.effect_layout.add_widget(self.effect)
+        self.background_layout.add_widget(self.background_increase_button)
+        self.effect_layout.add_widget(self.effect_increase_button)
+        self.layout.add_widget(self.background_layout)
+        self.layout.add_widget(self.effect_layout)
         self.layout.add_widget(self.mute_button)
+        self.layout.add_widget(self.back_button)
         self.add_widget(self.layout)
 
     def back_to_home(self, instance):
         self.manager.current = 'home'
+
+    def change_volume(self):
+        pass
 
 class GameScreen(Screen):
     def __init__(self, **kwargs):
@@ -241,6 +269,8 @@ class MatchingLetterGameApp(App):
     def build(self):
         screen_manager = ScreenManager()
         screen_manager.add_widget(HomeScreen(name='home'))
+        setting_sound_screen = SettingSoundScreen(name='setting_sound')
+        screen_manager.add_widget(setting_sound_screen)
         return screen_manager
     
 if __name__ == "__main__":
