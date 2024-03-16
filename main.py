@@ -91,15 +91,7 @@ class GameScreen(App):
                 self.correct_input_count += 1
                 self.score += (100 * self.score_multiplier)
                 self.score_text.text = f"Score : {self.score:.0f}"
-                if self.correct_input_count % 10 == 0 and self.correct_input_count != 0 and self.level_number < 10:
-                    self.speed_increase_sound.play()
-                    self.increase_speed()
-                elif self.correct_input_count % 25 == 0 and self.correct_input_count != 0 and 10 <= self.level_number < 30:
-                    self.speed_increase_sound.play()
-                    self.increase_speed()
-                elif self.correct_input_count % 50 == 0 and self.correct_input_count != 0 and 30 <= self.level_number:
-                    self.speed_increase_sound.play()
-                    self.increase_speed()
+                self.change_level()
 
         if not char_matched:
             self.health.lose_health()
@@ -116,6 +108,17 @@ class GameScreen(App):
         self.level_number += 1
         self.level_text.text = f"Level {self.level_number}"
         print("*******Speed increased*******")
+
+    def change_level(self):
+        if self.correct_input_count % 10 == 0 and self.correct_input_count != 0 and self.level_number < 10:
+            self.speed_increase_sound.play()
+            self.increase_speed()
+        elif self.correct_input_count % 25 == 0 and self.correct_input_count != 0 and 10 <= self.level_number < 30:
+            self.speed_increase_sound.play()
+            self.increase_speed()
+        elif self.correct_input_count % 50 == 0 and self.correct_input_count != 0 and 30 <= self.level_number:
+            self.speed_increase_sound.play()
+            self.increase_speed()
 
     def random_letter(self, dt):
         char = random.choice("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
