@@ -14,11 +14,27 @@ from kivy.uix.floatlayout import FloatLayout
 from kivy.graphics import Color,Rectangle
 from kivy.uix.image import Image
 from kivy.uix.button import Button
+from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.base import EventLoop
 import random
 
-class GameScreen(App):
-    def build(self):
+class HomeScreen(Screen):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        layout = GridLayout(cols=1)
+        self.start_button = Button(text="Start Game", size_hint=(None, None), size=(200, 50))
+        self.start_button.bind(on_press=self.start_game)
+        layout.add_widget(self.start_button)
+        self.add_widget(layout)
+
+    def start_game(self, instance):
+        game_screen = GameScreen(name='game')
+        self.manager.add_widget(game_screen)
+        self.manager.current = 'game'
+
+class GameScreen(Screen):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
         self.layout = GridLayout(cols=1, rows=4)
         self.play_zone = self.play_table()
         self.header = GridLayout(cols=3, rows=1, size_hint_y=None)
@@ -45,7 +61,7 @@ class GameScreen(App):
         self.header.add_widget(self.image)
         EventLoop.window.bind(on_key_down=self.on_key_down)
         Clock.schedule_interval(self.random_letter, self.game_speed)
-        return self.layout
+        self.add_widget(self.layout)
 
     def play_table(self):
         play_zone = GridLayout(cols=7, rows=6)
@@ -191,5 +207,11 @@ class HealthBar:
         elif self.current_health == 1:
             self.source = './image/health_bar_1.png'
 
+class MatchingLetterGameApp(App):
+    def build(self):
+        screen_manager = ScreenManager()
+        screen_manager.add_widget(HomeScreen(name='home'))
+        return screen_manager
+    
 if __name__ == "__main__":
-    GameScreen().run()
+    MatchingLetterGameApp().run()
