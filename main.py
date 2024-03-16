@@ -21,16 +21,42 @@ import random
 class HomeScreen(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        layout = GridLayout(cols=1)
-        self.start_button = Button(text="Start Game", size_hint=(None, None), size=(200, 50))
+        layout = BoxLayout(orientation='vertical')
+        self.start_button = Button(text="Start Game")
         self.start_button.bind(on_press=self.start_game)
+        self.setting_sound_button = Button(text="Setting Sound")
+        self.setting_sound_button.bind(on_press=self.set_sound)
         layout.add_widget(self.start_button)
+        layout.add_widget(self.setting_sound_button)
         self.add_widget(layout)
 
     def start_game(self, instance):
         game_screen = GameScreen(name='game')
         self.manager.add_widget(game_screen)
         self.manager.current = 'game'
+
+    def set_sound(self, instance):
+        setting_sound_screen = SettingSoundScreen(name='setting_sound')
+        self.manager.add_widget(setting_sound_screen)
+        self.manager.current = 'setting_sound'
+
+class SettingSoundScreen(Screen):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.layout = BoxLayout(orientation='vertical')
+        self.back_button = Button(text="Back")
+        self.back_button.bind(on_press=self.back_to_home)
+        self.volume_button = Button(text="Volume")
+        self.volume_button.bind(on_press=self.back_to_home)
+        self.mute_button = Button(text="Mute")
+        self.mute_button.bind(on_press=self.back_to_home)
+        self.layout.add_widget(self.back_button)
+        self.layout.add_widget(self.volume_button)
+        self.layout.add_widget(self.mute_button)
+        self.add_widget(self.layout)
+
+    def back_to_home(self, instance):
+        self.manager.current = 'home'
 
 class GameScreen(Screen):
     def __init__(self, **kwargs):
