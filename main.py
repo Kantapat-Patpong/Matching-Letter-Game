@@ -39,6 +39,8 @@ class GameScreen(App):
         self.background_music.play()
         self.correct_sound = Music('./sound/correct_sound.mp3')
         self.correct_sound.volume(0.2)
+        self.incorrect_sound = Music('./sound/oof_soundeffect.mp3')
+        self.incorrect_sound.volume(1)
         self.speed_increase_sound = Music('./sound/speed_increase.mp3')
         self.health = HealthBar(max_health=5)
         self.image = Image(source=self.health.source)
@@ -96,6 +98,7 @@ class GameScreen(App):
         if not char_matched:
             self.health.lose_health()
             print("Health:", self.health)
+            self.incorrect_sound.play()
             self.image.source = self.health.source
             if self.health.current_health == 0:
                 self.game_over()
