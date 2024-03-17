@@ -24,11 +24,11 @@ class HomeScreen(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         layout = BoxLayout(orientation='vertical')
-        self.start_button = Button(text="Start Game")
+        self.start_button = Button(text="Start Game" , font_size=50 , background_normal = 'Home_screen/00.png' , border = (0,0,0,0) ,outline_width=3 , outline_color=(0,0,0,1))
         self.start_button.bind(on_press=self.start_game)
-        self.how_to_play_button = Button(text="How to play")
+        self.how_to_play_button = Button(text="How to play" , font_size=50 , background_normal = 'Home_screen/01.png', border = (0,0,0,0) , outline_width=3 , outline_color=(0,0,0,1))
         self.how_to_play_button.bind(on_press=self.show_how_to_play)
-        self.setting_sound_button = Button(text="Setting Sound")
+        self.setting_sound_button = Button(text="Setting Sound" , font_size=50 , background_normal = 'Home_screen/02.png', border = (0,0,0,0), outline_width=3 , outline_color=(0,0,0,1))
         self.setting_sound_button.bind(on_press=self.set_sound)
         layout.add_widget(self.start_button)
         layout.add_widget(self.how_to_play_button)
@@ -44,8 +44,6 @@ class HomeScreen(Screen):
         self.manager.current = 'setting_sound'
 
     def show_how_to_play(self, instance):
-        how_to_play_screen = HowToPlayScreen(name='how_to_play')
-        self.manager.add_widget(how_to_play_screen)
         self.manager.current = 'how_to_play'
 
 class HowToPlayScreen(Screen):
@@ -81,6 +79,7 @@ class SettingSoundScreen(Screen):
         self.background_music_volume = 0.5
         self.effect_volume = 0.5
         self.background_music = Music('./sound/Background.mp3')
+        self.background_music.loop(True)
         self.background_music.volume(self.background_music_volume)
         self.gameover_sound = Music('./sound/gameover.mp3')
         self.gameover_sound.volume(self.effect_volume)
@@ -325,7 +324,9 @@ class Music(SoundLoader) :
         
     def volume(self ,loud) :
         self.music.volume = loud
-
+        
+    def loop(self,bool) :
+        self.music.loop = bool
 class HealthBar:
     def __init__(self, max_health):
         self.max_health = max_health
@@ -363,6 +364,8 @@ class MatchingLetterGameApp(App):
         screen_manager.add_widget(HomeScreen(name='home'))
         self.setting_sound_screen = SettingSoundScreen(name='setting_sound')
         screen_manager.add_widget(self.setting_sound_screen)
+        how_to_play_screen = HowToPlayScreen(name='how_to_play')
+        screen_manager.add_widget(how_to_play_screen)
         return screen_manager
     
     def on_start(self):
