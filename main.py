@@ -27,7 +27,7 @@ class HomeScreen(Screen):
         self.start_button = Button(text="Start Game")
         self.start_button.bind(on_press=self.start_game)
         self.how_to_play_button = Button(text="How to play")
-        self.how_to_play_button.bind(on_press=self.read_how_to_play)
+        self.how_to_play_button.bind(on_press=self.show_how_to_play)
         self.setting_sound_button = Button(text="Setting Sound")
         self.setting_sound_button.bind(on_press=self.set_sound)
         layout.add_widget(self.start_button)
@@ -43,8 +43,37 @@ class HomeScreen(Screen):
     def set_sound(self, instance):
         self.manager.current = 'setting_sound'
 
-    def read_how_to_play(self, instance):
-        pass
+    def show_how_to_play(self, instance):
+        how_to_play_screen = HowToPlayScreen(name='how_to_play')
+        self.manager.add_widget(how_to_play_screen)
+        self.manager.current = 'how_to_play'
+
+class HowToPlayScreen(Screen):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.layout = BoxLayout(orientation='vertical')
+        self.back_button = Button(text="Back", size_hint_y=0.1)
+        self.back_button.bind(on_press=self.back_to_home)
+        self.layout.add_widget(self.back_button)
+        self.carousel = Carousel(direction='right')
+        self.add_slides_to_carousel()
+        self.layout.add_widget(self.carousel)
+        self.add_widget(self.layout)
+
+    def add_slides_to_carousel(self):
+        slide1 = Image(source='./introduction/1.png')
+        slide2 = Image(source='./introduction/2.png')
+        slide3 = Image(source='./introduction/3.png')
+        slide4 = Image(source='./introduction/4.png')
+        slide5 = Image(source='./introduction/5.png')
+        self.carousel.add_widget(slide1)
+        self.carousel.add_widget(slide2)
+        self.carousel.add_widget(slide3)
+        self.carousel.add_widget(slide4)
+        self.carousel.add_widget(slide5)
+
+    def back_to_home(self, instance):
+        self.manager.current = 'home'
 
 class SettingSoundScreen(Screen):
     def __init__(self, **kwargs):
