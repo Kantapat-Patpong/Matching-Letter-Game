@@ -26,9 +26,12 @@ class HomeScreen(Screen):
         layout = BoxLayout(orientation='vertical')
         self.start_button = Button(text="Start Game")
         self.start_button.bind(on_press=self.start_game)
+        self.how_to_play_button = Button(text="How to play")
+        self.how_to_play_button.bind(on_press=self.read_how_to_play)
         self.setting_sound_button = Button(text="Setting Sound")
         self.setting_sound_button.bind(on_press=self.set_sound)
         layout.add_widget(self.start_button)
+        layout.add_widget(self.how_to_play_button)
         layout.add_widget(self.setting_sound_button)
         self.add_widget(layout)
 
@@ -39,6 +42,9 @@ class HomeScreen(Screen):
 
     def set_sound(self, instance):
         self.manager.current = 'setting_sound'
+
+    def read_how_to_play(self, instance):
+        pass
 
 class SettingSoundScreen(Screen):
     def __init__(self, **kwargs):
