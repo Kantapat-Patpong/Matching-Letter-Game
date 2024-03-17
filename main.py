@@ -47,6 +47,8 @@ class SettingSoundScreen(Screen):
         self.effect_volume = 0.5
         self.background_music = Music('./sound/Background.mp3')
         self.background_music.volume(self.background_music_volume)
+        self.gameover_sound = Music('./sound/gameover.mp3')
+        self.gameover_sound.volume(self.effect_volume)
         self.correct_sound = Music('./sound/correct_sound.mp3')
         self.correct_sound.volume(self.effect_volume)
         self.incorrect_sound = Music('./sound/oof_soundeffect.mp3')
@@ -67,7 +69,7 @@ class SettingSoundScreen(Screen):
         self.effect_decrease_button = Button(text="-", font_size=50)
         self.effect_decrease_button.bind(on_press=self.decrease_effect_volume)
         self.mute_button = Button(text="Mute All")
-        self.mute_button.bind(on_press=self.back_to_home)
+        self.mute_button.bind(on_press=self.mute_all)
         self.back_button = Button(text="Back")
         self.back_button.bind(on_press=self.back_to_home)
         self.background_layout.add_widget(self.background_decrease_button)
@@ -81,6 +83,10 @@ class SettingSoundScreen(Screen):
         self.layout.add_widget(self.mute_button)
         self.layout.add_widget(self.back_button)
         self.add_widget(self.layout)
+        self.background_music.play()
+
+    def get_sound_objects(self):
+        return self.background_music, self.correct_sound, self.incorrect_sound, self.speed_increase_sound, self.gameover_sound
 
     def back_to_home(self, instance):
         self.manager.current = 'home'
@@ -89,25 +95,53 @@ class SettingSoundScreen(Screen):
         if self.background_music_volume < 1:
             self.background_music_volume += 0.05
             self.background.text = f"Background Sound: {self.background_music_volume*100:.0f}"
+            self.background_music.volume(self.background_music_volume)
 
     def decrease_background_volume(self, instance):
         if round(self.background_music_volume, 1) != 0:
             self.background_music_volume -= 0.05
             self.background.text = f"Background Sound: {self.background_music_volume*100:.0f}"
+            self.background_music.volume(self.background_music_volume)
 
     def increase_effect_volume(self, instance):
         if self.effect_volume < 1:
             self.effect_volume += 0.05
             self.effect.text = f"Effect Sound: {self.effect_volume*100:.0f}"
+            self.correct_sound.volume(self.effect_volume)
+            self.incorrect_sound.volume(self.effect_volume)
+            self.speed_increase_sound.volume(self.effect_volume)
+            self.gameover_sound.volume(self.effect_volume)
 
     def decrease_effect_volume(self, instance):
         if round(self.effect_volume, 1) != 0:
             self.effect_volume -= 0.05
             self.effect.text = f"Effect Sound: {self.effect_volume*100:.0f}"
+            self.correct_sound.volume(self.effect_volume)
+            self.incorrect_sound.volume(self.effect_volume)
+            self.speed_increase_sound.volume(self.effect_volume)
+            self.gameover_sound.volume(self.effect_volume)
+
+    def mute_all(self, instance):
+        if self.background_music_volume > 0 or self.effect_volume > 0 :
+            self.background_music_volume = 0
+            self.effect_volume = 0
+            self.background.text = f"Background Sound: {self.background_music_volume*100:.0f}"
+            self.effect.text = f"Effect Sound: {self.effect_volume*100:.0f}"
+            self.background_music.volume(self.background_music_volume)
+            self.correct_sound.volume(self.effect_volume)
+            self.incorrect_sound.volume(self.effect_volume)
+            self.speed_increase_sound.volume(self.effect_volume)
+            self.gameover_sound.volume(self.effect_volume)
 
 class GameScreen(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.background_music = App.get_running_app().background_music
+        self.correct_sound = App.get_running_app().correct_sound
+        self.incorrect_sound = App.get_running_app().incorrect_sound
+        self.speed_increase_sound = App.get_running_app().speed_increase_sound
+        self.gameover_sound = App.get_running_app().gameover_sound
+        self.background_music.play()
         self.layout = GridLayout(cols=1, rows=4)
         self.play_zone = self.play_table()
         self.header = GridLayout(cols=3, rows=1, size_hint_y=None)
@@ -118,21 +152,11 @@ class GameScreen(Screen):
         self.layout.add_widget(self.play_zone)
         self.correct_input_count = 0
         self.score = 0
-        self.score_text = Label(text=f'Score : {self.score}', font_size=50)
+        self.score_text = Label(text=f'Score : {self.score:,.0f}', font_size=50)
         self.header.add_widget(self.score_text)
         self.score_multiplier = 1
         self.game_speed = 2
         self.current_time = Clock.get_time()
-        self.background_music = Music('./sound/Background.mp3')
-        self.background_music.volume(0.5)
-        self.background_music.play()
-        self.correct_sound = Music('./sound/correct_sound.mp3')
-        self.correct_sound.volume(0.2)
-        self.incorrect_sound = Music('./sound/oof_soundeffect.mp3')
-        self.incorrect_sound.volume(1)
-        self.gameover_sound = Music('./sound/gameover.mp3')
-        self.gameover_sound.volume(1)
-        self.speed_increase_sound = Music('./sound/speed_increase.mp3')
         self.health = HealthBar(max_health=5)
         self.image = Image(source=self.health.source)
         self.header.add_widget(self.image)
@@ -183,7 +207,7 @@ class GameScreen(Screen):
                 self.animate_disappear(label)
                 self.correct_input_count += 1
                 self.score += (100 * self.score_multiplier)
-                self.score_text.text = f"Score : {self.score:.0f}"
+                self.score_text.text = f"Score : {self.score:,.0f}"
                 self.change_level()
 
         if not char_matched:
@@ -232,7 +256,7 @@ class GameScreen(Screen):
         self.gameover_sound.play()
         EventLoop.window.unbind(on_key_down=self.on_key_down)
         print("*******Game Over!*******")
-        popup = Popup(title='Matching Letter Game', content=Label(text=f'Game Over! \ncorrect input count: {self.correct_input_count} \nyour score: {self.score}'),
+        popup = Popup(title='Matching Letter Game', content=Label(text=f'Game Over! \nyour perfect count: {self.correct_input_count} \nyour score: {self.score:,.0f}'),
                       auto_dismiss=True, size_hint=(0.4, 0.4))
         popup.open()
 
@@ -288,12 +312,22 @@ class HealthBar:
             self.source = './image/health_bar_1.png'
 
 class MatchingLetterGameApp(App):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.background_music = None
+        self.correct_sound = None
+        self.incorrect_sound = None
+        self.speed_increase_sound = None
+
     def build(self):
         screen_manager = ScreenManager()
         screen_manager.add_widget(HomeScreen(name='home'))
-        setting_sound_screen = SettingSoundScreen(name='setting_sound')
-        screen_manager.add_widget(setting_sound_screen)
+        self.setting_sound_screen = SettingSoundScreen(name='setting_sound')
+        screen_manager.add_widget(self.setting_sound_screen)
         return screen_manager
+    
+    def on_start(self):
+        self.background_music, self.correct_sound, self.incorrect_sound, self.speed_increase_sound, self.gameover_sound = self.setting_sound_screen.get_sound_objects()
     
 if __name__ == "__main__":
     MatchingLetterGameApp().run()
