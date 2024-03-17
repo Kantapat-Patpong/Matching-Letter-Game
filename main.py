@@ -20,6 +20,9 @@ from kivy.uix.carousel import Carousel
 from kivy.uix.image import AsyncImage
 import random
 
+# คลาสสำหรับหน้า Home Screen ที่สามารถกดปุ่ม Start Game เพื่อเข้าเกม
+# กดปุ่ม How to play เพื่อแสดงวิธีการเล่นเกม
+# กดปุ่ม Setting sound เพื่อตั้งค่าระดับเสียงภายในเกม
 class HomeScreen(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -35,17 +38,23 @@ class HomeScreen(Screen):
         layout.add_widget(self.setting_sound_button)
         self.add_widget(layout)
 
+    # เมธอดสำหรับเปลี่ยน screen ปัจจุบันให้เป็น game screen 
     def start_game(self, instance):
         game_screen = GameScreen(name='game')
         self.manager.add_widget(game_screen)
         self.manager.current = 'game'
 
+    # เมธอดสำหรับเปลี่ยน screen ปัจจุบันให้เป็น setting sound screen
     def set_sound(self, instance):
         self.manager.current = 'setting_sound'
 
+    # เมธอดสำหรับเปลี่ยน screen ปัจจุบันให้เป็น how to play screen
     def show_how_to_play(self, instance):
         self.manager.current = 'how_to_play'
 
+# คลาสสำหรับหน้า How to play screen ที่แสดงรายละเอียดวิธีการเล่นเกม
+# โดยจะแสดงวิธีการเล่นเกมเป็นรูปภาพในสไลด์ผ่านการทำงานของ widget carousal
+# มีปุ่ม back สำหรับย้อนกลับไปหน้า Home screen
 class HowToPlayScreen(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -58,6 +67,7 @@ class HowToPlayScreen(Screen):
         self.layout.add_widget(self.carousel)
         self.add_widget(self.layout)
 
+    # เมธอดสำหรับเพิ่มรูปภาพวิธีการเล่นลงในสไลด์ผ่าน widget carousal
     def add_slides_to_carousel(self):
         slide1 = Image(source='./introduction/1.png')
         slide2 = Image(source='./introduction/2.png')
@@ -70,9 +80,16 @@ class HowToPlayScreen(Screen):
         self.carousel.add_widget(slide4)
         self.carousel.add_widget(slide5)
 
+    # เมธอดสำหรับเปลี่ยน screen ปัจจุบันให้เป็น home screen
     def back_to_home(self, instance):
         self.manager.current = 'home'
 
+# คลาสสำหรับตั้งค่าระดับเสียงภายในเกม และสร้าง object music ต่าง ๆ สำหรับใช้ภายในเกม
+# สามารถปรับระดับเสียงของ background sound และสามารถปรับระดับเสียงของ effect sound
+# ( effect sound ประกอบด้วยเสียงเมื่อกดถูก, เสียงเมื่อกดผิด, เสียงเมื่อเปลี่ยนด่านเพิ่มความเร็ว  และเสียงเมื่อเกมจบลง)
+# โดยการกดปุ่มเครื่องหมายบวก (+) หรือ ลบ(-) เพื่อเปลี่ยนระดับเสียงทีละ 5 หน่วย (ระดับเสียงจะแสดงอยู่ในรูปร้อยละ)
+# มีปุ่ม mute all สำหรับเปลี่ยนระดับเสียงของ background sound และ effect sound ให้กลายเป็น 0
+# มีปุ่ม back เพื่อย้อนกลับไปยังหน้า home screen
 class SettingSoundScreen(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -119,12 +136,17 @@ class SettingSoundScreen(Screen):
         self.add_widget(self.layout)
         self.background_music.play()
 
+    # เมธอดสำหรับเรียก object music ทั้งหมด
     def get_sound_objects(self):
         return self.background_music, self.correct_sound, self.incorrect_sound, self.speed_increase_sound, self.gameover_sound
 
+    # เมธอดสำหรับเปลี่ยน screen ให้เป็น home screen
     def back_to_home(self, instance):
         self.manager.current = 'home'
 
+    # เมธอดสำหรับเพิ่มระดับเสียงให้กับ background sound ขึ้นทีละ 0.05 หน่วย
+    # ซึ่งระดับเสียงของ background sound ก่อนหน้านั้น จะต้องมีค่าไม่ถึง 1
+    # และเมื่อเรียกใช้จะเล่นเสียง correct sound ขึ้นมา
     def increase_background_volume(self, instance):
         if self.background_music_volume < 1:
             self.background_music_volume += 0.05
@@ -132,13 +154,19 @@ class SettingSoundScreen(Screen):
             self.background_music.volume(self.background_music_volume)
             self.correct_sound.play()
 
+    # เมธอดสำหรับลดระดับเสียงให้กับ background sound ลงทีละ 0.05 หน่วย
+    # ซึ่งระดับเสียงของ background sound ก่อนหน้านั้น จะต้องมีค่าประมาณทศนิยมหนึ่งตำแหน่งไม่เท่ากับ 0
+    # และเมื่อเรียกใช้จะเล่นเสียง correct sound ขึ้นมา
     def decrease_background_volume(self, instance):
         if round(self.background_music_volume, 1) != 0:
             self.background_music_volume -= 0.05
             self.background.text = f"Background Sound: {self.background_music_volume*100:.0f}"
             self.background_music.volume(self.background_music_volume)
             self.correct_sound.play()
-
+    
+    # เมธอดสำหรับเพิ่มระดับเสียงให้กับ effect sound ขึ้นทีละ 0.05 หน่วย
+    # ซึ่งระดับเสียงของ effect sound ก่อนหน้านั้น จะต้องมีค่าไม่ถึง 1
+    # และเมื่อเรียกใช้จะเล่นเสียง correct sound ขึ้นมา
     def increase_effect_volume(self, instance):
         if self.effect_volume < 1:
             self.effect_volume += 0.05
@@ -149,6 +177,9 @@ class SettingSoundScreen(Screen):
             self.gameover_sound.volume(self.effect_volume)
             self.correct_sound.play()
 
+    # เมธอดสำหรับลดระดับเสียงให้กับ effect sound ลงทีละ 0.05 หน่วย
+    # ซึ่งระดับเสียงของ effect sound ก่อนหน้านั้น จะต้องมีค่าประมาณทศนิยมหนึ่งตำแหน่งไม่เท่ากับ 0
+    # และเมื่อเรียกใช้จะเล่นเสียง correct sound ขึ้นมา
     def decrease_effect_volume(self, instance):
         if round(self.effect_volume, 1) != 0:
             self.effect_volume -= 0.05
@@ -159,6 +190,8 @@ class SettingSoundScreen(Screen):
             self.gameover_sound.volume(self.effect_volume)
             self.correct_sound.play()
 
+    # เมธอดสำหรับตั้งค่าระดับเสียงทั้ง background sound และ effect sound ให้กลายเป็น 0
+    # เมื่อระดับเสียงของตัวใดตัวหนึ่งมากกว่า 0
     def mute_all(self, instance):
         if self.background_music_volume > 0 or self.effect_volume > 0 :
             self.background_music_volume = 0
