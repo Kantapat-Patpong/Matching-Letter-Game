@@ -65,7 +65,7 @@ class SettingSoundScreen(Screen):
         self.effect_decrease_button = Button(text="-", font_size=50)
         self.effect_decrease_button.bind(on_press=self.decrease_effect_volume)
         self.mute_button = Button(text="Mute All")
-        self.mute_button.bind(on_press=self.back_to_home)
+        self.mute_button.bind(on_press=self.mute_all)
         self.back_button = Button(text="Back")
         self.back_button.bind(on_press=self.back_to_home)
         self.background_layout.add_widget(self.background_decrease_button)
@@ -79,6 +79,7 @@ class SettingSoundScreen(Screen):
         self.layout.add_widget(self.mute_button)
         self.layout.add_widget(self.back_button)
         self.add_widget(self.layout)
+        self.background_music.play()
 
     def back_to_home(self, instance):
         self.manager.current = 'home'
@@ -87,21 +88,40 @@ class SettingSoundScreen(Screen):
         if self.background_music_volume < 1:
             self.background_music_volume += 0.05
             self.background.text = f"Background Sound: {self.background_music_volume*100:.0f}"
+            self.background_music.volume(self.background_music_volume)
 
     def decrease_background_volume(self, instance):
         if round(self.background_music_volume, 1) != 0:
             self.background_music_volume -= 0.05
             self.background.text = f"Background Sound: {self.background_music_volume*100:.0f}"
+            self.background_music.volume(self.background_music_volume)
 
     def increase_effect_volume(self, instance):
         if self.effect_volume < 1:
             self.effect_volume += 0.05
             self.effect.text = f"Effect Sound: {self.effect_volume*100:.0f}"
+            self.correct_sound.volume(self.effect_volume)
+            self.incorrect_sound.volume(self.effect_volume)
+            self.speed_increase_sound.volume(self.effect_volume)
 
     def decrease_effect_volume(self, instance):
         if round(self.effect_volume, 1) != 0:
             self.effect_volume -= 0.05
             self.effect.text = f"Effect Sound: {self.effect_volume*100:.0f}"
+            self.correct_sound.volume(self.effect_volume)
+            self.incorrect_sound.volume(self.effect_volume)
+            self.speed_increase_sound.volume(self.effect_volume)
+
+    def mute_all(self, instance):
+        if self.background_music_volume > 0 or self.effect_volume > 0 :
+            self.background_music_volume = 0
+            self.effect_volume = 0
+            self.background.text = f"Background Sound: {self.background_music_volume*100:.0f}"
+            self.effect.text = f"Effect Sound: {self.effect_volume*100:.0f}"
+            self.background_music.volume(self.background_music_volume)
+            self.correct_sound.volume(self.effect_volume)
+            self.incorrect_sound.volume(self.effect_volume)
+            self.speed_increase_sound.volume(self.effect_volume)
 
 class GameScreen(Screen):
     def __init__(self, **kwargs):
