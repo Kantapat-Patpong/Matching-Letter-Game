@@ -45,6 +45,8 @@ class SettingSoundScreen(Screen):
         self.effect_volume = 0.5
         self.background_music = Music('./sound/Background.mp3')
         self.background_music.volume(self.background_music_volume)
+        self.gameover_sound = Music('./sound/gameover.mp3')
+        self.gameover_sound.volume(self.effect_volume)
         self.correct_sound = Music('./sound/correct_sound.mp3')
         self.correct_sound.volume(self.effect_volume)
         self.incorrect_sound = Music('./sound/oof_soundeffect.mp3')
@@ -81,6 +83,9 @@ class SettingSoundScreen(Screen):
         self.add_widget(self.layout)
         self.background_music.play()
 
+    def get_sound_objects(self):
+        return self.background_music, self.correct_sound, self.incorrect_sound, self.speed_increase_sound, self.gameover_sound
+
     def back_to_home(self, instance):
         self.manager.current = 'home'
 
@@ -103,6 +108,7 @@ class SettingSoundScreen(Screen):
             self.correct_sound.volume(self.effect_volume)
             self.incorrect_sound.volume(self.effect_volume)
             self.speed_increase_sound.volume(self.effect_volume)
+            self.gameover_sound.volume(self.effect_volume)
 
     def decrease_effect_volume(self, instance):
         if round(self.effect_volume, 1) != 0:
@@ -111,6 +117,7 @@ class SettingSoundScreen(Screen):
             self.correct_sound.volume(self.effect_volume)
             self.incorrect_sound.volume(self.effect_volume)
             self.speed_increase_sound.volume(self.effect_volume)
+            self.gameover_sound.volume(self.effect_volume)
 
     def mute_all(self, instance):
         if self.background_music_volume > 0 or self.effect_volume > 0 :
@@ -122,10 +129,17 @@ class SettingSoundScreen(Screen):
             self.correct_sound.volume(self.effect_volume)
             self.incorrect_sound.volume(self.effect_volume)
             self.speed_increase_sound.volume(self.effect_volume)
+            self.gameover_sound.volume(self.effect_volume)
 
 class GameScreen(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.background_music = App.get_running_app().background_music
+        self.correct_sound = App.get_running_app().correct_sound
+        self.incorrect_sound = App.get_running_app().incorrect_sound
+        self.speed_increase_sound = App.get_running_app().speed_increase_sound
+        self.gameover_sound = App.get_running_app().gameover_sound
+        self.background_music.play()
         self.layout = GridLayout(cols=1, rows=4)
         self.play_zone = self.play_table()
         self.header = GridLayout(cols=3, rows=1, size_hint_y=None)
@@ -141,16 +155,6 @@ class GameScreen(Screen):
         self.score_multiplier = 1
         self.game_speed = 2
         self.current_time = Clock.get_time()
-        self.background_music = Music('./sound/Background.mp3')
-        self.background_music.volume(0.5)
-        self.background_music.play()
-        self.correct_sound = Music('./sound/correct_sound.mp3')
-        self.correct_sound.volume(0.2)
-        self.incorrect_sound = Music('./sound/oof_soundeffect.mp3')
-        self.incorrect_sound.volume(1)
-        self.gameover_sound = Music('./sound/gameover.mp3')
-        self.gameover_sound.volume(1)
-        self.speed_increase_sound = Music('./sound/speed_increase.mp3')
         self.health = HealthBar(max_health=5)
         self.image = Image(source=self.health.source)
         self.header.add_widget(self.image)
@@ -306,12 +310,22 @@ class HealthBar:
             self.source = './image/health_bar_1.png'
 
 class MatchingLetterGameApp(App):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.background_music = None
+        self.correct_sound = None
+        self.incorrect_sound = None
+        self.speed_increase_sound = None
+
     def build(self):
         screen_manager = ScreenManager()
         screen_manager.add_widget(HomeScreen(name='home'))
-        setting_sound_screen = SettingSoundScreen(name='setting_sound')
-        screen_manager.add_widget(setting_sound_screen)
+        self.setting_sound_screen = SettingSoundScreen(name='setting_sound')
+        screen_manager.add_widget(self.setting_sound_screen)
         return screen_manager
+    
+    def on_start(self):
+        self.background_music, self.correct_sound, self.incorrect_sound, self.speed_increase_sound, self.gameover_sound = self.setting_sound_screen.get_sound_objects()
     
 if __name__ == "__main__":
     MatchingLetterGameApp().run()
