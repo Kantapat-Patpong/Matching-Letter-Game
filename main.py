@@ -16,6 +16,8 @@ from kivy.uix.image import Image
 from kivy.uix.button import Button
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.base import EventLoop
+from kivy.uix.carousel import Carousel
+from kivy.uix.image import AsyncImage
 import random
 
 class HomeScreen(Screen):
