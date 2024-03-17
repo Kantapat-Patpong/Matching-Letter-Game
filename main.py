@@ -150,7 +150,7 @@ class GameScreen(Screen):
         self.layout.add_widget(self.play_zone)
         self.correct_input_count = 0
         self.score = 0
-        self.score_text = Label(text=f'Score : {self.score}', font_size=50)
+        self.score_text = Label(text=f'Score : {self.score:,.0f}', font_size=50)
         self.header.add_widget(self.score_text)
         self.score_multiplier = 1
         self.game_speed = 2
@@ -205,7 +205,7 @@ class GameScreen(Screen):
                 self.animate_disappear(label)
                 self.correct_input_count += 1
                 self.score += (100 * self.score_multiplier)
-                self.score_text.text = f"Score : {self.score:.0f}"
+                self.score_text.text = f"Score : {self.score:,.0f}"
                 self.change_level()
 
         if not char_matched:
@@ -254,7 +254,7 @@ class GameScreen(Screen):
         self.gameover_sound.play()
         EventLoop.window.unbind(on_key_down=self.on_key_down)
         print("*******Game Over!*******")
-        popup = Popup(title='Matching Letter Game', content=Label(text=f'Game Over! \ncorrect input count: {self.correct_input_count} \nyour score: {self.score}'),
+        popup = Popup(title='Matching Letter Game', content=Label(text=f'Game Over! \nyour perfect count: {self.correct_input_count} \nyour score: {self.score:,.0f}'),
                       auto_dismiss=True, size_hint=(0.4, 0.4))
         popup.open()
 
