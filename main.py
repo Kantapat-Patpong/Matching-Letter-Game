@@ -204,6 +204,19 @@ class SettingSoundScreen(Screen):
             self.speed_increase_sound.volume(self.effect_volume)
             self.gameover_sound.volume(self.effect_volume)
 
+# คลาสสำหรับหน้า game screen ที่เรียกใช้เสียง background sound และ effect sound 
+# ผ่าน App ที่เรียก object music มาจาก setting sound screen
+# ภายในหน้า screen มี layout หลักเป็น GridLayout 1 คอลัมน์ 2 แถว
+# แถวแรกจะประกอบด้วยส่วน header ที่เป็น GridLayout มี 3 ส่วนคือ ส่วนแสดงเลขด่าน
+# ส่วนแสดงคะแนน และส่วนแสดงแถบหลอดเลือด แถวที่สองจะเป็น play zone พื้นที่ GridLayout
+# 7 คอลัมน์ 6 แถว ที่มีการสุ่มตัวอักษรลงในแต่ละช่อง (ความเร็วเริ่มต้นอยู่ที่ 2 วินาที)ซึ่งความเร็วที่สุ่ม
+# จะเปลี่ยนไปตามเงื่อนไขของจำนวนการกดถูกตัวอักษร เมื่อกดถูกก็จะได้รับคะแนนครั้งละ 100 คะแนน
+# คะแนนที่ได้รับนั้นจะคูณเพิ่มขึ้นด้วยตัวคูณที่เพิ่มมาจากการเปลี่ยนด่า (ตัวคูณเริ่มต้นเท่ากับ 1)
+# แต่ถ้าหากผู้เล่นกดผิดตัวอักกษรจะลดระดับเลือดลง 1 หน่วย ซึ่งผู้เล่นจะมีระดับเลือดทั้งหมด 5 หน่วย
+# object self.health เลือดของผู้เล่นนั้นจะถูกสร้างมาจากคลาส HealthBar ที่รับค่า max_health = 5
+# รูปแถบเลือดปัจจุบันจะถูกดึงมาจาก attributes source ของ object self.health มนเรียกใช้ใน widget Image
+# เมื่อผู้เล่นกดผิดครบ 5 ครั้ง เกมก็จะจบลงพร้อม pop up สรุปผลจำนวนครั้งที่กดถูก และจำนวนคะแนนที่ได้
+# ผูกการกดคีย์บนแป้นพิมพ์กับ EventLoop.window
 class GameScreen(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -213,7 +226,7 @@ class GameScreen(Screen):
         self.speed_increase_sound = App.get_running_app().speed_increase_sound
         self.gameover_sound = App.get_running_app().gameover_sound
         self.background_music.play()
-        self.layout = GridLayout(cols=1, rows=4)
+        self.layout = GridLayout(cols=1, rows=2)
         self.play_zone = self.play_table()
         self.header = GridLayout(cols=3, rows=1, size_hint_y=None)
         self.layout.add_widget(self.header)
@@ -235,6 +248,13 @@ class GameScreen(Screen):
         Clock.schedule_interval(self.random_letter, self.game_speed)
         self.add_widget(self.layout)
 
+    # เมธอดสำหรับสร้างกระดานตาราง 7 x 6 จาก Gridlayout โดยในแต่ละช่องจะใส่ widget
+    # เป็น Label เพื่อรองรับการสุ่มตัวอักษรลงในช่อง (รวมทั้งหมด 42 ช่อง) และมีการใส่สีให้กับ
+    # ช่อง Label จาก widget Rectangle (สร้างพื้นที่สี่เหลี่ยมมุมฉากลงใน canvas ของ Label
+    # จากขนาดและตำแหน่งของ Label) และ Color (เก็บค่าสี rgba เพื่อใส่สีลงใน canvas ของ Lbael)
+    # สีสำหรับใส่ให้กับช่องจะมี 2 ชุด การใส่สีแต่ละช่องนั้นจะมีการเปลี่ยนชุดสี ไม่ให้เป็นสีเดียวกับช่องที่อยู่ติดกัน
+    # จะได้ผลลัพธ์การใส่สีเป็นลายตารางหมากรุก การเปลี่ยนชุดสีปัจจุบันจะทำผ่านเมธอด next_color
+    # ที่เช็คค่า red ของ current_color
     def play_table(self):
         play_zone = GridLayout(cols=7, rows=6)
         self.labels = []
@@ -262,12 +282,27 @@ class GameScreen(Screen):
             if isinstance(instruction, Rectangle):
                 instruction.size = instance.size
 
+    # เมธอดสำหรับเปลี่ยนชุดสีภายในเมธอด play_table จะรับค่าเป็น curren_color ค่าชุดสีปัจจุบัน
+    # จะเปลี่ยนค่าสีจากการเช็คค่า red ของ current_color ถ้ามีค่าเท่ากับ 0.1 จะใช้ชุดสีสีเทา
+    # แต่ถ้าไม่จะใช้ชุดสีเทาเข้ม
     def next_color(self, current_color):
         if current_color.r == 0.1:
             return Color(0.05, 0.05, 0.05, 1)
         else:
             return Color(0.1, 0.1, 0.1, 1)
 
+    # เมธอดสำหรับเช็คค่าตัวอักษรที่ผู้เล่นกดลงมีค่าตรงกับ text ใน Label ช่องใดหรือไม่
+    # จะเก็บค่าที่ผู้เล่นกดคีย์มาเปลี่ยนไปเป็นตัวอักษรที่เป็นพิมพ์ใหญ่ และกำหนดค่า char_matched เป็น False สำหรับการเรียกใช้เมธอดทุกครั้ง
+    # เพื่อใช้ในการเข้าเงื่อนไขการลดระดับเลือดของผู้เล่น ถ้า char_matched ที่ค่าเป็น False หมายถึง คีย์ที่ผู้เล่น
+    # กดลงมานั้น ไม่ตรงกับ text ใน Label ใดเลย จึงจะเข้าเงื่อนไขลดเลือดได้ ภายในเงื่อนไขลดเลือด
+    # จะเรียกใช้เมธอด lose_health กับ object self.health จากคลาส HealthBar ลดเลือดของผู้เล่น
+    # ลง 1 หน่วย พร้อมเรียก source ของรูปแถบเลือดใหม่มาจาก self.health หลังผ่านการใช้เมธอด lose_health
+    # และยังเรียกใช้เสียง effect incorrect_sound แต่ถ้าหากระดับเลือดปัจจุบันของผู้เล่นเท่า 0 จะเรียกใช้เมธอด 
+    # game_over ของคลาส GameScreen การเช็คตัวอักษรจะทำผ่านลูป for เพื่อเช็คกับ text ของ Label
+    # โดยจะเช็คกับ text ของ Label ที่ไม่เท่ากับสตริงเปล่า ถ้า text ของ Label ตรงกับตัวอักษรของคีย์ที่ผู้เล่นกด
+    # จะทำการ set ค่า char_matched เป็น True เรียกเล่นเสียง effect correct_sound พร้อมกับเรียกใช้เมธอด
+    # animate_disappear เพื่อทำให้ตัวอักษรใน Label หายไป แล้วเพิ่มจำวนครั้งการกดถูก เพิ่มจำนวนคะแนนที่ผ่านการคำนวณจากตัวคูณ
+    # พร้อมเซ็ตค่า text ของ score_text ใน header ให้เป็นค่าคะแนนปัจจุบัน และเรียกใช้เมธอด change_level เพื่อเช็คเงื่อนไขการเปลี่ยนด่าน
     def on_key_down(self, window, key, *args):
         char = chr(key).upper()
         char_matched = False
@@ -289,6 +324,9 @@ class GameScreen(Screen):
             if self.health.current_health == 0:
                 self.game_over()
 
+    # เมธอดสำหรับเปลี่ยนความเร็วของการสุ่มตัวอักษรที่ตัวแปร self.game_speed ที่จะเพิ่มขึ้นทีละ 0.9 เท่า
+    # พร้อมเซ็ตค่าความเร็วใหม่ลงใน Clock เพื่อเรียกใช้เมธอด random_letter และเพิ่มตัวคูณคะแนนขึ้นทีละ 0.1
+    # เพิ่มเลขด่านขึ้นทีละ 1 พร้อมเซ็ตค่า text ของ level_text ให้กลายเป็นเลขด่านปัจจุบัน
     def increase_speed(self):
         Clock.unschedule(self.random_letter)
         self.game_speed *= 0.9
@@ -298,6 +336,11 @@ class GameScreen(Screen):
         self.level_text.text = f"Level {self.level_number}"
         print("*******Speed increased*******")
 
+    # เมธอดสำหรับเช็คเงื่อนไขในการเปลี่ยนด่านเพื่อเรียกใช้เมธอด increase_speed เพิ่มความเร็วของการสุ่ม
+    # และเรียกใช้เสียง effect speed_increase_sound โดยที่เงื่อนไขจะแบ่งการเพิ่มความเร็วเป็น 3 ช่วง
+    # ช่วงที่ 1 จะเป็นช่วงที่ level ไม่ถึง 10 และมีจำนวนการกดถูกทุก ๆ 10 ครั้ง จะเปลี่ยนด่าน
+    # ช่วงที่ 2 จะเป็นช่วงที่ level เริ่มที่ 10 แต่ไม่ถึง 30 และมีจำนวนการกดถูกทุก ๆ 25 ครั้ง จะเปลี่ยนด่าน
+    # ช่วงที่ 3 จะเป็นช่วงที่ level เริ่มที่ 30 ขึ้นไป และมีจำนวนการกดถูกทุก ๆ 50 ครั้ง จะเปลี่ยนด่าน
     def change_level(self):
         if self.correct_input_count % 10 == 0 and self.correct_input_count != 0 and self.level_number < 10:
             self.speed_increase_sound.play()
@@ -309,6 +352,9 @@ class GameScreen(Screen):
             self.speed_increase_sound.play()
             self.increase_speed()
 
+    # เมธอดสำหรับสุ่มตัวอักษรภาษาอังกฤษพิมพ์ใหญ่ลงใน text ของ Label โดยจะเรียกลิสต์ของ Label จาก self.labels
+    # แค่ Label ที่มี text เป็นสตริงเปล่า พร้อมสุ่มตัวอักษรจาก choice ที่สร้างไว้ แล้วเรียกใช้เมธอด animate_appear
+    # ถ้าหากช่อง Label ที่ว่างนั้นเหลือแค่ 1 ช่อง จะเรียกใช้เมธอด game_over
     def random_letter(self, dt):
         char = random.choice("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
         empty_labels = [label for label in self.labels if label.text == '']
@@ -317,9 +363,13 @@ class GameScreen(Screen):
             self.game_over()
         self.animate_appear(label, char)
 
+    # เมธอดสำหรับเปลี่ยน text ของ Label ให้เป็นสตริงเปล่า
     def set_label_to_empty(self, label):
         label.text = ''
 
+    # เมธอดสำหรับจบเกม เมื่อเเรียกใช้จะหยุดเล่น background_music ของเกม แล้วเรียกใช้เสียง effect gameover_sound
+    #  เลิกผูกการกดคีย์บนแป้นพิมพ์กับ EventLoop.window ทำให้ผู้เล่นไม่สามารถเล่นเกมต่อได้ และสร้าง object Popup
+    # สำหรับแสดงผลสรุปคะแนน และจำนวนครั้งที่กดถูก
     def game_over(self):
         Clock.unschedule(self.random_letter)
         background_music = self.background_music
@@ -331,6 +381,8 @@ class GameScreen(Screen):
                       auto_dismiss=True, size_hint=(0.4, 0.4))
         popup.open()
 
+    # เมธอดสำหรับสร้าง object animation เพื่อใช้ในเมธอด on_key_down ซึ่ง object นี้จะผูกกับเมธอด set_label_to_empty
+    # โดยที่ animation จะเป็นการเซ็ตขนาดของ text ใน Label ให้ใหญ่ขึ้นแบบค่อย ๆ จางลง แล้วค่อย ๆ ตัวเล็กลงจนเป็น 0 และ text จะกลายเป็นสตริงเปล่า
     def animate_disappear(self, label):
         anim = Animation(font_size=label.font_size, opacity=100, duration=0)
         anim += Animation(font_size=label.font_size * 2, opacity=0, duration=0.15)
@@ -338,42 +390,56 @@ class GameScreen(Screen):
         anim.bind(on_complete=lambda *args: self.set_label_to_empty(label))
         anim.start(label)
 
+    # เมธอดสำหรับสร้าง object animation เพื่อใช้ในเมธอด random_letter โดยที่ animation จะเป็นการเช็ตขนาดเริ่มต้นของ text ใน Label
+    # ให้มีขนาด 100 แบบมองไม่เห็น แล้วค่อย ๆ ลดขนาดลงและสีทึบขึ้นเรื่อย ๆ
     def animate_appear(self, label, char):
         label.text = char
         anim = Animation(font_size=100, opacity=0, duration=0)
         anim += Animation(font_size=50, opacity=100, duration=0.25)
         anim.start(label)
 
+# คลาสสำหรับสร้าง object music ที่มี parent เป็น SoundLoader โดยจะรับค่าเป็น path ของ sound ที่ต้องการ
 class Music(SoundLoader) :
     def __init__(self,music_path):
         super().__init__()
         self.music = SoundLoader.load(music_path)
-        
+    
+    # เมธอดสำหรับเล่นเสียง object music
     def play(self) :
         self.music.play()
-        
+    
+    # เมธอดสำหรับหยุดเล่นเสียง object music
     def stop(self) :
         self.music.stop()
-        
+    
+    # เมธอดสำหรับเปลี่ยนระดับเสียง object music โดยรับค่าระดับเสียงมาเป็นตัวเลข
     def volume(self ,loud) :
         self.music.volume = loud
-        
+    
+    # เมธอดสำหรับเซ็ตให้ object music วนลูป โดยรับค่าเป็น boolean
     def loop(self,bool) :
         self.music.loop = bool
+
+# คลาสสำหรับสร้าง object HealthBar จะรับค่า max_health เป็นตัวเลข มีการเก็บค่าเลือดปัจจุบัน 
+# และเก็บ source เป็น path สำหรับการเข้าถึงรูปแถบเลือดตามระดับเลือดปัจจุบัน
 class HealthBar:
     def __init__(self, max_health):
         self.max_health = max_health
         self.current_health = max_health
         self.source = './image/health_bar_5.png'
 
+    # เมธอดสำหรับแสดงระดับเลือดปัจจุบันเป็นสตริง
     def __str__(self) -> str:
         return f"health: {self.current_health}"
 
+    # เมธอดสำหรับลดระดับเลือดปัจจุบันลง 1 หน่วยเมื่อเลือดปัจจุบันไม่เท่ากับ 0 หน่วย 
+    # และเรียกใช้เมธอด change_source เพื่อเปลี่ยนรูปแถบเลือดให้เป็นปัจจุบัน
     def lose_health(self):
         if self.current_health != 0:
             self.current_health -= 1
             self.change_source()
 
+    # เมธอดสำหรับเปลี่ยน path รูปของแถบเลือดตามเงื่อนไขระดับเลือดปัจจุบันที่เหลืออยู่
     def change_source(self):
         if self.current_health == 4:
             self.source = './image/health_bar_4.png'
@@ -384,6 +450,8 @@ class HealthBar:
         elif self.current_health == 1:
             self.source = './image/health_bar_1.png'
 
+# คลาสสำหรับจัดการเชื่อมไปยังหน้า screen ต่าง ๆ ซึ่งคลาสสร้างจาก parent App 
+# และคลาสนี้จะรับ object music ที่ผ่านการตั้งค่าจาก setting sound screen
 class MatchingLetterGameApp(App):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -392,6 +460,8 @@ class MatchingLetterGameApp(App):
         self.incorrect_sound = None
         self.speed_increase_sound = None
 
+    # เมธอดสำหรับสร้างตัวจัดการ screen หน้าต่าง ๆ โดยจะเพิ่ม object screen 
+    # จากคลาส HomeScreen, SettingSoundScreen, HowToPlayScreen ลงในตัวจัดการ screen
     def build(self):
         screen_manager = ScreenManager()
         screen_manager.add_widget(HomeScreen(name='home'))
@@ -401,6 +471,7 @@ class MatchingLetterGameApp(App):
         screen_manager.add_widget(how_to_play_screen)
         return screen_manager
     
+    # เมธอดสำหรับเรียก object music มาจาก setting sound screen
     def on_start(self):
         self.background_music, self.correct_sound, self.incorrect_sound, self.speed_increase_sound, self.gameover_sound = self.setting_sound_screen.get_sound_objects()
     
