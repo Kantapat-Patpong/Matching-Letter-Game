@@ -234,13 +234,14 @@ class GameScreen(Screen):
         EventLoop.window.bind(on_key_down=self.on_key_down)
         Clock.schedule_interval(self.random_letter, self.game_speed)
         self.add_widget(self.layout)
-
+        
+    # สร้างตารางขนาด 7x6 ไว้สำหรับใส่ตัวอักษรที่สุ่มได้
     def play_table(self):
         play_zone = GridLayout(cols=7, rows=6)
-        self.labels = []
-        current_color = Color(0.1, 0.1, 0.1, 1)
+        self.labels = []    #List สำหรับเก็บตัวอักษรที่อยู่บนกระดานทั้งหมด ณ ปัจจุบัน
+        current_color = Color(0.1, 0.1, 0.1, 1)     #สีพื้นหลังช่องแรก
         for i in range(42):
-            label = Label(text='', font_size=50)
+            label = Label(text='', font_size=50)    #สร้าง label โดยกำหนดเป็น string ว่างตอนเริ่มต้น
             self.labels.append(label)
             rect = Rectangle(pos=label.pos, size=label.size)
             rect_color = Color(current_color.r, current_color.g, current_color.b, 1)
@@ -251,23 +252,27 @@ class GameScreen(Screen):
             play_zone.add_widget(label)
             current_color = self.next_color(current_color)
         return play_zone
-
+    
+    #กำหนดตำแหน่งของ label ให้คืนค่าเดิมเมื่ออักษรนั้นถูกลบไปแล้ว
     def update_rect_pos(self, instance, value):
         for instruction in instance.canvas.before.children:
             if isinstance(instruction, Rectangle):
                 instruction.pos = instance.pos
-
+                
+    #กำหนดขนาดของ label ให้คืนค่าเดิมเมื่ออักษรนั้นถูกลบไปแล้ว
     def update_rect_size(self, instance, value):
         for instruction in instance.canvas.before.children:
             if isinstance(instruction, Rectangle):
                 instruction.size = instance.size
-
+                
+    #ทำให้สีสลับกันเป็นลายตาราง
     def next_color(self, current_color):
         if current_color.r == 0.1:
             return Color(0.05, 0.05, 0.05, 1)
         else:
             return Color(0.1, 0.1, 0.1, 1)
-
+        
+    #ฟังชั่นรับค่าตัวอักษรและตรวจสอบความถูกต้องของตัวอักษรจากผู้เล่น
     def on_key_down(self, window, key, *args):
         char = chr(key).upper()
         char_matched = False
@@ -279,7 +284,7 @@ class GameScreen(Screen):
                 self.correct_input_count += 1
                 self.score += (100 * self.score_multiplier)
                 self.score_text.text = f"Score : {self.score:,.0f}"
-                self.change_level()
+                self.change_level_section()
 
         if not char_matched:
             self.health.lose_health()
@@ -289,6 +294,7 @@ class GameScreen(Screen):
             if self.health.current_health == 0:
                 self.game_over()
 
+    #เพิ่มความเร็วของการสุ่มตัวอักษร + เพิ่ม level
     def increase_speed(self):
         Clock.unschedule(self.random_letter)
         self.game_speed *= 0.9
@@ -297,8 +303,9 @@ class GameScreen(Screen):
         self.level_number += 1
         self.level_text.text = f"Level {self.level_number}"
         print("*******Speed increased*******")
-
-    def change_level(self):
+        
+    #กำหนดช่วงของ level ตามปริมาณตัวอักษรที่กดได้
+    def change_level_section(self):
         if self.correct_input_count % 10 == 0 and self.correct_input_count != 0 and self.level_number < 10:
             self.speed_increase_sound.play()
             self.increase_speed()
@@ -308,7 +315,8 @@ class GameScreen(Screen):
         elif self.correct_input_count % 50 == 0 and self.correct_input_count != 0 and 30 <= self.level_number:
             self.speed_increase_sound.play()
             self.increase_speed()
-
+            
+    #สุ่มตัวอักษร A-Z
     def random_letter(self, dt):
         char = random.choice("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
         empty_labels = [label for label in self.labels if label.text == '']
@@ -316,10 +324,12 @@ class GameScreen(Screen):
         if len(empty_labels) == 1:
             self.game_over()
         self.animate_appear(label, char)
-
+        
+    #ทำให้ label นั้นเป็น string ว่าง
     def set_label_to_empty(self, label):
         label.text = ''
-
+        
+    #ฟังชั่นเมื่อต้องการให้เกมจบลง
     def game_over(self):
         Clock.unschedule(self.random_letter)
         background_music = self.background_music
@@ -331,6 +341,7 @@ class GameScreen(Screen):
                       auto_dismiss=True, size_hint=(0.4, 0.4))
         popup.open()
 
+    #อนิเมชั่นตัวอักษรตอนปรากฎออกมา
     def animate_disappear(self, label):
         anim = Animation(font_size=label.font_size, opacity=100, duration=0)
         anim += Animation(font_size=label.font_size * 2, opacity=0, duration=0.15)
@@ -338,27 +349,29 @@ class GameScreen(Screen):
         anim.bind(on_complete=lambda *args: self.set_label_to_empty(label))
         anim.start(label)
 
+    #อนิเมชั่นตัวอักษรตอนหายไป
     def animate_appear(self, label, char):
         label.text = char
         anim = Animation(font_size=100, opacity=0, duration=0)
         anim += Animation(font_size=50, opacity=100, duration=0.25)
         anim.start(label)
-
+        
+#คลาส Music ไว้สำหรับจัดการ attribute ของเพลงทั้งหมด
 class Music(SoundLoader) :
-    def __init__(self,music_path):
+    def __init__(self,music_path):      #สร้าง object เพลง
         super().__init__()
         self.music = SoundLoader.load(music_path)
         
-    def play(self) :
+    def play(self) :    #เล่นเพลง
         self.music.play()
         
-    def stop(self) :
+    def stop(self) :   #หยุดเพลง
         self.music.stop()
         
-    def volume(self ,loud) :
+    def volume(self ,loud) :    #จัดการระดับเสียงโดยใส่ค่าระหว่าง 0 - 1 เพื่อกำหนดระดับเสียง
         self.music.volume = loud
         
-    def loop(self,bool) :
+    def loop(self,bool) :   #การเล่นวนลูป
         self.music.loop = bool
 class HealthBar:
     def __init__(self, max_health):
