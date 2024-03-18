@@ -316,7 +316,7 @@ class GameScreen(Screen):
                 self.correct_input_count += 1
                 self.score += (100 * self.score_multiplier)
                 self.score_text.text = f"Score : {self.score:,.0f}"
-                self.change_level_section()
+                self.change_level()
 
         if not char_matched:
             self.health.lose_health()
