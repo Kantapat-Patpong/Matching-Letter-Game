@@ -257,10 +257,10 @@ class GameScreen(Screen):
     # ที่เช็คค่า red ของ current_color
     def play_table(self):
         play_zone = GridLayout(cols=7, rows=6)
-        self.labels = []
-        current_color = Color(0.1, 0.1, 0.1, 1)
+        self.labels = []    #List สำหรับเก็บตัวอักษรที่อยู่บนกระดานทั้งหมด ณ ปัจจุบัน
+        current_color = Color(0.1, 0.1, 0.1, 1)     #สีพื้นหลังช่องแรก
         for i in range(42):
-            label = Label(text='', font_size=50)
+            label = Label(text='', font_size=50)    #สร้าง label โดยกำหนดเป็น string ว่างตอนเริ่มต้น
             self.labels.append(label)
             rect = Rectangle(pos=label.pos, size=label.size)
             rect_color = Color(current_color.r, current_color.g, current_color.b, 1)
@@ -271,12 +271,14 @@ class GameScreen(Screen):
             play_zone.add_widget(label)
             current_color = self.next_color(current_color)
         return play_zone
-
+    
+    #กำหนดตำแหน่งของ label ให้คืนค่าเดิมเมื่ออักษรนั้นถูกลบไปแล้ว
     def update_rect_pos(self, instance, value):
         for instruction in instance.canvas.before.children:
             if isinstance(instruction, Rectangle):
                 instruction.pos = instance.pos
-
+                
+    #กำหนดขนาดของ label ให้คืนค่าเดิมเมื่ออักษรนั้นถูกลบไปแล้ว
     def update_rect_size(self, instance, value):
         for instruction in instance.canvas.before.children:
             if isinstance(instruction, Rectangle):
@@ -314,7 +316,7 @@ class GameScreen(Screen):
                 self.correct_input_count += 1
                 self.score += (100 * self.score_multiplier)
                 self.score_text.text = f"Score : {self.score:,.0f}"
-                self.change_level()
+                self.change_level_section()
 
         if not char_matched:
             self.health.lose_health()
@@ -400,7 +402,7 @@ class GameScreen(Screen):
 
 # คลาสสำหรับสร้าง object music ที่มี parent เป็น SoundLoader โดยจะรับค่าเป็น path ของ sound ที่ต้องการ
 class Music(SoundLoader) :
-    def __init__(self,music_path):
+    def __init__(self,music_path):      #สร้าง object เพลง
         super().__init__()
         self.music = SoundLoader.load(music_path)
     
