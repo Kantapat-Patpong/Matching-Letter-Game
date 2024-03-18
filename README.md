@@ -7,6 +7,8 @@
 Background Music : [Platypus 1 OST - Comic Bakery](https://youtu.be/zY14ooABqU8?feature=shared)
 
 Effect Sound : [8-Bit Game Sound Effects](https://youtu.be/phBBtaESoMI?feature=shared)
+
+GameOver Sound : [Undertale OST: 068 - Death by Glamour](https://youtu.be/2TgO-tN5wAM?feature=shared)
 ## กฎกติกา
 1. ตัวอักษร A-Z จะถูกสุ่มขึ้นมาบนกระดานขนาด 7x6 
 ![readme_pic01](Readme_Picture/readme_pic01.png)
